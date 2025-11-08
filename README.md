@@ -1,30 +1,133 @@
-# Thanksgiving Gratitude Display System
+# 🎉 感恩节活动网站
 
-This is a web application for displaying gratitude messages and signatures during Thanksgiving, with data import from Excel and lottery features.
+基于 Next.js + SQLite + Docker 的感恩节活动网站，支持 Excel 导入、动态显示、抽奖和签名功能。
 
-## Features
+## 🚀 部署方式
 
-1. **Data Import**: Upload Excel files to import gratitude records.
-2. **Gratitude Display**: Dynamic floating display of gratitude items.
-3. **Gratitude Lottery**: Random selection of gratitude items with animations and music.
-4. **Signature Wall**: Add signatures via form (simplified from WeChat QR).
-5. **Signature Display**: Scrolling display of signatures.
-6. **Signature Lottery**: Random selection of signatures with animations and music.
+### 方式1：CI/CD 自动化部署（推荐）
 
-## Setup
+#### 优势
+- ✅ **全自动** - 代码推送自动部署
+- ✅ **零停机** - 滚动更新，无服务中断
+- ✅ **版本控制** - 完整的部署历史
+- ✅ **快速回滚** - 出现问题可快速回滚
 
-1. Install MongoDB and start it.
-2. In the backend folder: `npm install` then `npm start`.
-3. Open frontend/index.html in a browser.
+#### 快速开始
 
-## Assets
+1. **设置腾讯云容器服务**
+2. **配置 GitHub Secrets**
+3. **推送代码自动部署**
 
-Place the following files in frontend/assets/:
-- thanksgiving-bg.jpg: Background image for Thanksgiving theme.
-- thanksgiving-music.mp3: Background music.
-- lottery-music.mp3: Music for lottery animations.
+```bash
+# 推送代码到 GitHub
+git add .
+git commit -m "Update website"
+git push origin main
 
-## Notes
+# GitHub Actions 会自动构建和部署！
+```
 
-- WeChat QR scanning is simulated with a form for simplicity.
-- Ensure CORS is enabled for frontend-backend communication.
+详细配置请参考：[CI/CD 设置指南](CICD_SETUP.md)
+
+### 方式2：手动 Docker 部署
+
+#### 快速部署
+
+```bash
+# 1. 打包项目
+cd /Users/chentong/Documents/giving
+tar -czf giving-docker.tar.gz .
+
+# 2. 上传到服务器
+scp giving-docker.tar.gz root@203.195.208.202:/root/
+
+# 3. 服务器部署
+ssh root@203.195.208.202
+cd giving
+./final-deploy.sh
+```
+
+详细说明请参考：[Docker 部署指南](DOCKER_DEPLOY_README.md)
+
+## 🌐 功能特性
+
+- ✅ **Excel 导入** - 支持批量导入感恩数据
+- ✅ **动态显示** - 实时更新感恩墙
+- ✅ **抽奖功能** - 随机抽取感恩信息
+- ✅ **签名墙** - 收集用户签名
+- ✅ **响应式设计** - 支持手机和电脑
+- ✅ **数据持久化** - SQLite 数据库存储
+
+## 🛠️ 技术栈
+
+- **前端**: Next.js 16, React 19, TypeScript, Tailwind CSS
+- **后端**: Next.js API Routes
+- **数据库**: SQLite + better-sqlite3
+- **部署**: Docker + Nginx
+- **CI/CD**: GitHub Actions
+
+## 📁 项目结构
+
+```
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/            # API 路由
+│   │   ├── upload/         # 文件上传页面
+│   │   ├── gratitude-display/  # 感恩展示页面
+│   │   └── ...
+│   └── components/         # React 组件
+├── public/                 # 静态资源
+├── Dockerfile             # Docker 构建配置
+├── docker-compose.yml     # Docker Compose 配置
+├── nginx.conf            # Nginx 配置
+└── .github/workflows/     # GitHub Actions 工作流
+```
+
+## 🚀 本地开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 启动生产服务器
+npm start
+```
+
+## 📊 部署状态
+
+### 当前环境
+- **生产环境**: 腾讯云服务器
+- **域名**: peacechurch.cn
+- **IP地址**: 203.195.208.202
+- **部署方式**: Docker + CI/CD
+
+### 监控指标
+- ✅ **服务状态**: 通过健康检查监控
+- ✅ **自动备份**: 每日凌晨2点备份数据库
+- ✅ **日志记录**: 完整的应用和系统日志
+
+## 🤝 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支: `git checkout -b feature/amazing-feature`
+3. 提交更改: `git commit -m 'Add amazing feature'`
+4. 推送分支: `git push origin feature/amazing-feature`
+5. 提交 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🙏 致谢
+
+感谢所有为这个项目贡献的人！
+
+---
+
+🎊 **感恩节快乐！愿这个网站能帮助大家传递感恩的心意。**

@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  giving-app:
+    image: ccr.ccs.tencentyun.com/giving-app/thanksgiving-giving:latest
+    container_name: giving-app
+    ports:
+      - "3000:3000"
+    volumes:
+      # 持久化数据库文件
+      - ./data:/app/data
+      # 如果需要持久化上传的文件
+      - ./public/uploads:/app/public/uploads
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: giving-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - giving-app
+    restart: unless-stopped
