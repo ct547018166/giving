@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Node.js 18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+# 安装 Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
 # 安装系统依赖（better-sqlite3 需要）
