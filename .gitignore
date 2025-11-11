@@ -91,7 +91,7 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+# public  # Removed to allow public/ folder
 
 # Storybook build outputs
 .out
