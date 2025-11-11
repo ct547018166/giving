@@ -1,28 +1,5 @@
-# 使用 Ubuntu 22.04 作为基础镜像（更稳定）
-FROM ubuntu:22.04
-
-# 避免交互式提示
-ENV DEBIAN_FRONTEND=noninteractive
-
-# 更新包列表并安装基础工具
-RUN apt-get update && apt-get install -y \
-    curl \
-    wget \
-    gnupg \
-    && rm -rf /var/lib/apt/lists/*
-
-# 安装 Node.js 20
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
-
-# 安装系统依赖（better-sqlite3 需要）
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    sqlite3 \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# 多阶段构建：构建阶段
+FROM node:20-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -31,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 安装依赖
-RUN npm ci
+RUN npm ci --only=production && npm cache clean --force
 
 # 复制源代码
 COPY . .
@@ -39,11 +16,28 @@ COPY . .
 # 构建应用
 RUN npm run build
 
-# 创建非root用户
-RUN useradd -m -u 1001 -s /bin/bash nodejs
+# 生产阶段
+FROM node:20-alpine AS runner
 
-# 创建数据目录并设置权限
-RUN mkdir -p /app/data && chown -R nodejs:nodejs /app/data
+# 安装 sqlite3 运行时依赖
+RUN apk add --no-cache sqlite
+
+# 创建非root用户
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+
+# 设置工作目录
+WORKDIR /app
+
+# 从构建阶段复制文件
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/data ./data
+
+# 设置权限
+RUN chown -R nodejs:nodejs /app/data
 
 # 切换到非root用户
 USER nodejs
