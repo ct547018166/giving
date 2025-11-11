@@ -21,9 +21,22 @@ jobs:
           key: ${{ secrets.EYSERVER_SSH_K }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
+            # Install build dependencies for better-sqlite3
+            sudo apt-get update
+            sudo apt-get install -y build-essential python3 libsqlite3-dev
+            
+            # Install PM2 if not present
+            if ! command -v pm2 &> /dev/null; then
+              sudo npm install -g pm2
+            fi
+            
             cd /opt/giving
             git pull origin main
             npm install
+            
+            # Rebuild native modules
+            npm rebuild better-sqlite3
+            
             npm run build
             pm2 restart giving-app || pm2 start npm --name "giving-app" -- start
             sleep 30
