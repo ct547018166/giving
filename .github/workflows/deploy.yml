@@ -16,6 +16,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure Docker mirrors
+        run: |
+          echo '{"registry-mirrors": ["https://registry.cn-hangzhou.aliyuncs.com"]}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Log in to Tencent Cloud Container Registry
         uses: docker/login-action@v3
         with:
@@ -24,12 +40,18 @@ jobs:
           password: ${{ secrets.TENCENT_CLOUD_PASSWORD }}
 
       - name: Build Docker image
-        run: |
-          docker build -t ccr.ccs.tencentyun.com/giving-app/thanksgiving-giving:latest .
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ccr.ccs.tencentyun.com/giving-app/thanksgiving-giving:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
 
-      - name: Push Docker image
+      - name: Move cache
         run: |
-          docker push ccr.ccs.tencentyun.com/giving-app/thanksgiving-giving:latest
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
