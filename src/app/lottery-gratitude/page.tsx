@@ -15,6 +15,7 @@ export default function LotteryGratitude() {
   const [winner, setWinner] = useState<Gratitude | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isRunningRef = useRef(false); // 添加 ref 来追踪运行状态
   const router = useRouter();
 
   // 添加键盘事件监听
@@ -37,6 +38,7 @@ export default function LotteryGratitude() {
   const startLottery = async () => {
     if (isRunning) return;
     setIsRunning(true);
+    isRunningRef.current = true; // 更新 ref
     const audio = document.getElementById('lottery-music') as HTMLAudioElement;
 
     try {
@@ -47,10 +49,17 @@ export default function LotteryGratitude() {
     }
 
     intervalRef.current = setInterval(async () => {
+      // 如果已经停止，就不再请求
+      if (!isRunningRef.current) return;
+      
       try {
         const response = await fetch('/api/random-gratitude');
         const item = await response.json();
-        setWinner(item);
+        
+        // 请求返回后再次检查是否还在运行
+        if (isRunningRef.current) {
+          setWinner(item);
+        }
       } catch (error) {
         console.error('Error:', error);
       }
@@ -58,6 +67,7 @@ export default function LotteryGratitude() {
   };
 
   const stopLottery = () => {
+    isRunningRef.current = false; // 立即更新 ref
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -74,15 +84,17 @@ export default function LotteryGratitude() {
 
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-start justify-center pt-16" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
-      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20">
-        {winner ? (
-          <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-30 p-6 rounded-lg border border-orange-300 border-opacity-30">
-            <p className="text-3xl"><strong>{winner.id}</strong> - {winner.nickname}</p>
-            <p className="text-2xl">{winner.gratitude}</p>
-          </div>
-        ) : (
-          <p className="text-3xl">点击开始抽奖或按空格键</p>
-        )}
+      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20 w-[800px]">
+        <div className="h-96 flex flex-col justify-center items-center">
+          {winner ? (
+            <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-30 p-6 rounded-lg border border-orange-300 border-opacity-30 w-full">
+              <p className="text-3xl mb-4"><strong>{winner.id}</strong> - {winner.nickname}</p>
+              <p className="text-2xl line-clamp-6">{winner.gratitude}</p>
+            </div>
+          ) : (
+            <p className="text-3xl">点击开始抽奖或按空格键</p>
+          )}
+        </div>
         <div className="mt-4 flex gap-4 justify-center">
           <button
             onClick={startLottery}
