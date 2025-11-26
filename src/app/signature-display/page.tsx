@@ -122,7 +122,7 @@ export default function SignatureDisplay() {
             src={qrCodeUrl}
             alt="签名墙页面二维码"
             className="border-2 border-gray-300 rounded"
-            style={{ width: '120px', height: '120px' }}
+            style={{ width: '180px', height: '180px' }}
           />
         )}
       </div>

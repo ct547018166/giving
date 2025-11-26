@@ -25,7 +25,9 @@ export async function POST(request: NextRequest) {
       for (let i = 1; i < jsonData.length; i++) {
         const row = jsonData[i] as any[];
         if (row.length >= 4) {
-          const nickname = row[1];
+          // 处理昵称：转为字符串并去除首尾空格
+          const rawNickname = row[1];
+          const nickname = rawNickname ? String(rawNickname).trim() : '';
           
           // 过滤掉特定的昵称
           if (['林云云', '青橄榄树', '黑门甘露.兰'].includes(nickname)) {
@@ -44,6 +46,13 @@ export async function POST(request: NextRequest) {
 
     // Clear existing data before importing new data
     db.prepare('DELETE FROM gratitudes').run();
+    
+    // Reset auto-increment ID
+    try {
+      db.prepare("DELETE FROM sqlite_sequence WHERE name = 'gratitudes'").run();
+    } catch (e) {
+      console.warn('Failed to reset sqlite_sequence:', e);
+    }
 
     // Insert into database
     const insert = db.prepare('INSERT INTO gratitudes (serial, nickname, time, gratitude) VALUES (?, ?, ?, ?)');
