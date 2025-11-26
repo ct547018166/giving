@@ -25,9 +25,16 @@ export async function POST(request: NextRequest) {
       for (let i = 1; i < jsonData.length; i++) {
         const row = jsonData[i] as any[];
         if (row.length >= 4) {
+          const nickname = row[1];
+          
+          // 过滤掉特定的昵称
+          if (['林云云', '青橄榄树', '黑门甘露.兰'].includes(nickname)) {
+            continue;
+          }
+
           data.push({
             serial: row[0],
-            nickname: row[1],
+            nickname: nickname,
             time: row[2],
             gratitude: row[3]
           });
