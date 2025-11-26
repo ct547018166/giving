@@ -98,7 +98,7 @@ export default function SignatureDisplay() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-no-repeat overflow-hidden relative" style={{ backgroundImage: "url('/white-bg.svg')" }}>
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat overflow-hidden relative" style={{ backgroundImage: "url('/thanksgiving-brush-bg.svg')" }}>
       <audio ref={audioRef} loop autoPlay preload="metadata">
         <source src="/thanksgiving-music.mp3" type="audio/mpeg" />
       </audio>

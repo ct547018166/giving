@@ -1,0 +1,33 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1920" height="1080" fill="#FFFAF0"/>
+  
+  <!-- 左上角笔刷 -->
+  <path d="M-100 -100 C 300 100, 500 50, 600 300 C 500 400, 200 300, -100 500 Z" fill="#FF9AA2" fill-opacity="0.5"/>
+  <path d="M0 0 C 400 50, 600 200, 500 500 C 300 450, 100 600, 0 700 Z" fill="#FFB7B2" fill-opacity="0.5"/>
+  
+  <!-- 右上角笔刷 -->
+  <path d="M2020 -100 C 1600 100, 1400 50, 1300 300 C 1400 400, 1700 300, 2020 500 Z" fill="#FFDAC1" fill-opacity="0.5"/>
+  <path d="M1920 0 C 1500 50, 1300 200, 1400 500 C 1600 450, 1800 600, 1920 700 Z" fill="#E2F0CB" fill-opacity="0.5"/>
+
+  <!-- 左下角笔刷 -->
+  <path d="M-100 1180 C 300 980, 500 1030, 600 780 C 500 680, 200 780, -100 580 Z" fill="#B5EAD7" fill-opacity="0.5"/>
+  <path d="M0 1080 C 400 1030, 600 880, 500 630 C 300 680, 100 530, 0 430 Z" fill="#C7CEEA" fill-opacity="0.5"/>
+
+  <!-- 右下角笔刷 -->
+  <path d="M2020 1180 C 1600 980, 1400 1030, 1300 780 C 1400 680, 1700 780, 2020 580 Z" fill="#FF9AA2" fill-opacity="0.5"/>
+  <path d="M1920 1080 C 1500 1030, 1300 880, 1400 630 C 1600 680, 1800 530, 1920 430 Z" fill="#FFB7B2" fill-opacity="0.5"/>
+  
+  <!-- 随机点缀 -->
+  <circle cx="800" cy="150" r="40" fill="#E2F0CB" fill-opacity="0.3"/>
+  <circle cx="1100" cy="200" r="60" fill="#FFDAC1" fill-opacity="0.3"/>
+  <circle cx="900" cy="900" r="50" fill="#C7CEEA" fill-opacity="0.3"/>
+  <circle cx="1200" cy="850" r="30" fill="#B5EAD7" fill-opacity="0.3"/>
+  
+  <!-- 柔和的纹理覆盖 (可选，增加质感) -->
+  <rect width="1920" height="1080" fill="url(#grain)" opacity="0.05"/>
+  <defs>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="3" stitchTiles="stitch"/>
+    </filter>
+  </defs>
+</svg>

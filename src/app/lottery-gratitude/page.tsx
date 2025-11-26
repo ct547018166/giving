@@ -84,15 +84,19 @@ export default function LotteryGratitude() {
 
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-start justify-center pt-16" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
-      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20 w-[800px]">
-        <div className="h-96 flex flex-col justify-center items-center">
+      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20">
+        <div className="min-w-[600px] flex flex-col">
           {winner ? (
-            <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-30 p-6 rounded-lg border border-orange-300 border-opacity-30 w-full">
-              <p className="text-3xl mb-4"><strong>{winner.id}</strong> - {winner.nickname}</p>
-              <p className="text-2xl line-clamp-6">{winner.gratitude}</p>
+            <div className="flex-1 flex flex-col justify-end items-center">
+              <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-30 p-6 rounded-lg border border-orange-300 border-opacity-30 w-full">
+                <p className="text-3xl"><strong>{winner.id}</strong> - {winner.nickname}</p>
+                <p className="text-2xl">{winner.gratitude}</p>
+              </div>
             </div>
           ) : (
-            <p className="text-3xl">点击开始抽奖或按空格键</p>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-3xl">点击开始抽奖或按空格键</p>
+            </div>
           )}
         </div>
         <div className="mt-4 flex gap-4 justify-center">
