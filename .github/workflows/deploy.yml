@@ -22,8 +22,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             cd /opt/giving
-            git fetch origin
-            git reset --hard origin/main
+            git pull origin main
             npm install
             npm run build
             pm2 restart giving-app || pm2 start npm --name "giving-app" -- start
