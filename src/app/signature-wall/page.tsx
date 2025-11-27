@@ -4,9 +4,15 @@ import { useState } from 'react';
 
 export default function SignatureWall() {
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isSubmitting) return; // 防止重复提交
+
+    setIsSubmitting(true);
+    setMessage(''); // 清空之前的消息
+    
     const form = e.currentTarget; // 保存表单引用
     const formData = new FormData(form);
     const data = {
@@ -38,13 +44,15 @@ export default function SignatureWall() {
       
       if (response.ok) {
         setMessage(result.message || '提交成功');
+        form.reset();
       } else {
         setMessage(result.error || '提交失败');
       }
-      form.reset();
     } catch (error) {
       console.error('Network error:', error);
       setMessage('网络错误，请稍后重试');
+    } finally {
+      setIsSubmitting(false); // 无论成功失败，都恢复按钮状态
     }
   };
 
@@ -58,18 +66,28 @@ export default function SignatureWall() {
             name="nickname" 
             placeholder="昵称" 
             required 
-            className="w-full mb-4 p-2 border rounded text-black dark:text-black placeholder-gray-500 dark:placeholder-gray-600" 
+            disabled={isSubmitting}
+            className="w-full mb-4 p-2 border rounded text-black dark:text-black placeholder-gray-500 dark:placeholder-gray-600 disabled:bg-gray-100" 
             style={{color: 'black'}}
           />
           <textarea 
             name="signature" 
             placeholder="签名" 
             required 
-            className="w-full mb-4 p-2 border rounded text-black dark:text-black placeholder-gray-500 dark:placeholder-gray-600 resize-none" 
+            disabled={isSubmitting}
+            className="w-full mb-4 p-2 border rounded text-black dark:text-black placeholder-gray-500 dark:placeholder-gray-600 resize-none disabled:bg-gray-100" 
             rows={3}
             style={{color: 'black'}}
           ></textarea>
-          <button type="submit" className="w-full bg-orange-500 text-white py-2 rounded hover:bg-orange-600">提交</button>
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className={`w-full text-white py-2 rounded transition-colors ${
+              isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600'
+            }`}
+          >
+            {isSubmitting ? '提交中...' : '提交'}
+          </button>
         </form>
         {message && <p className="mt-4 text-center text-black dark:text-black" style={{color: 'black'}}>{message}</p>}
       </div>
