@@ -102,7 +102,7 @@ export default function LotterySignature() {
 
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-start justify-center pt-16" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
-      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20">
+      <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-20 p-8 rounded-lg text-center text-white border-2 border-orange-300 border-opacity-50 mt-20 mb-40">
         <div className="min-w-[600px] flex flex-col">
           {winner ? (
             <div className="flex-1 flex flex-col justify-end items-center">
@@ -117,24 +117,28 @@ export default function LotterySignature() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* 固定位置的控制按钮和提示 */}
+      <div className="fixed bottom-52 left-0 right-0 flex flex-col items-center gap-4 z-10">
         <div className="mt-4 flex gap-4 justify-center">
           <button
             onClick={startLottery}
             disabled={isRunning}
-            className="bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600 disabled:opacity-50"
+            className="bg-orange-500 text-white px-6 py-3 rounded hover:bg-orange-600 disabled:opacity-50 shadow-lg"
           >
             {isRunning ? '抽奖中...' : '开始抽奖'}
           </button>
           {isRunning && (
             <button
               onClick={stopLottery}
-              className="bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600"
+              className="bg-red-500 text-white px-6 py-3 rounded hover:bg-red-600 shadow-lg"
             >
               结束抽奖
             </button>
           )}
         </div>
-        <p className="text-sm text-white/80 mt-2">提示：按空格键可以快速开始/结束抽奖</p>
+        <p className="text-sm text-white/90 font-medium drop-shadow-md">提示：按空格键可以快速开始/结束抽奖</p>
       </div>
       <audio id="lottery-music" preload="auto">
         <source src="/lottery-music.mp3" type="audio/mpeg" />
