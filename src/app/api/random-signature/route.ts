@@ -3,12 +3,22 @@ import db from '@/lib/db';
 
 export async function GET() {
   try {
-    const count = db.prepare('SELECT COUNT(*) as count FROM signatures').get() as { count: number };
-    if (count.count === 0) {
+    // 从去重后的数据中随机抽取一条
+    const signature = db.prepare(`
+      SELECT * FROM signatures 
+      WHERE id IN (
+        SELECT MAX(id) 
+        FROM signatures 
+        GROUP BY nickname
+      )
+      ORDER BY RANDOM() 
+      LIMIT 1
+    `).get();
+
+    if (!signature) {
       return NextResponse.json({ error: 'No signatures found' }, { status: 404 });
     }
-    const random = Math.floor(Math.random() * count.count);
-    const signature = db.prepare('SELECT * FROM signatures LIMIT 1 OFFSET ?').get(random);
+    
     return NextResponse.json(signature);
   } catch (error) {
     console.error(error);
