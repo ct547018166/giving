@@ -54,6 +54,22 @@ export default function UploadPage() {
     }
   };
 
+  const handleCleanupSignatures = async () => {
+    if (!confirm('确定要清理重复的签名吗？每个昵称将只保留最新的一条记录。')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/cleanup-signatures', {
+        method: 'POST',
+      });
+      const result = await response.json();
+      setClearMessage(result.message || result.error);
+    } catch (error) {
+      setClearMessage('清理失败');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
       <div className="bg-white bg-opacity-90 p-8 rounded-lg text-center max-w-md w-full">
@@ -90,13 +106,24 @@ export default function UploadPage() {
             
             <hr className="my-6 border-gray-300" />
             
+            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4">
+              <p className="font-bold">ℹ️ 数据维护</p>
+              <p>清理重复的昵称数据，只保留最新的一条。</p>
+            </div>
+            <button
+              onClick={handleCleanupSignatures}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4 w-full"
+            >
+              清理重复签名
+            </button>
+
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
               <p className="font-bold">⚠️ 危险操作</p>
               <p>清除所有签名信息，此操作不可恢复！</p>
             </div>
             <button
               onClick={handleClearSignatures}
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mb-4"
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mb-4 w-full"
             >
               一键清除所有签名
             </button>
