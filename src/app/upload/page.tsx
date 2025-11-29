@@ -71,7 +71,7 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/thanksgiving-bg.svg')" }}>
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
       <div className="bg-white bg-opacity-90 p-8 rounded-lg text-center max-w-md w-full">
         {!isAuthenticated ? (
           <>

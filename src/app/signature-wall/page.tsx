@@ -57,7 +57,7 @@ export default function SignatureWall() {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/thanksgiving-bg.svg')" }}>
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-4" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
       <div className="bg-white bg-opacity-90 p-8 rounded-lg max-w-md w-full transform -translate-y-25">
         <h2 className="text-2xl font-bold mb-4 text-center text-black dark:text-black">添加签名</h2>
         <form onSubmit={handleSubmit}>
