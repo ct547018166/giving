@@ -29,6 +29,8 @@ if (isVercel) {
   // 本地开发环境 - 使用文件数据库
   const dbPath = path.join(process.cwd(), 'database.db');
   db = new Database(dbPath);
+  // 开启 WAL 模式以提高并发性能
+  db.pragma('journal_mode = WAL');
 }
 
 // Create tables
