@@ -13,10 +13,25 @@ interface Gratitude {
 
 export default function LotteryGratitude() {
   const [winner, setWinner] = useState<Gratitude | null>(null);
+  const [allGratitudes, setAllGratitudes] = useState<Gratitude[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRunningRef = useRef(false); // 添加 ref 来追踪运行状态
   const router = useRouter();
+
+  // 加载所有数据
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/gratitudes');
+        const data = await response.json();
+        setAllGratitudes(data);
+      } catch (error) {
+        console.error('Error loading gratitudes:', error);
+      }
+    };
+    loadData();
+  }, []);
 
   // 添加键盘事件监听
   useEffect(() => {
@@ -33,10 +48,29 @@ export default function LotteryGratitude() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isRunning]); // 依赖isRunning状态
+  }, [isRunning, allGratitudes]); // 依赖isRunning和数据
 
   const startLottery = async () => {
     if (isRunning) return;
+    
+    // 如果没有数据，尝试重新加载
+    let currentData = allGratitudes;
+    if (currentData.length === 0) {
+      try {
+        const response = await fetch('/api/gratitudes');
+        currentData = await response.json();
+        setAllGratitudes(currentData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return;
+      }
+    }
+    
+    if (currentData.length === 0) {
+      alert('暂无数据可抽奖');
+      return;
+    }
+
     setIsRunning(true);
     isRunningRef.current = true; // 更新 ref
     const audio = document.getElementById('lottery-music') as HTMLAudioElement;
@@ -48,22 +82,14 @@ export default function LotteryGratitude() {
       console.warn('Audio play failed:', error);
     }
 
-    intervalRef.current = setInterval(async () => {
-      // 如果已经停止，就不再请求
+    intervalRef.current = setInterval(() => {
+      // 如果已经停止，就不再执行
       if (!isRunningRef.current) return;
       
-      try {
-        const response = await fetch('/api/random-gratitude');
-        const item = await response.json();
-        
-        // 请求返回后再次检查是否还在运行
-        if (isRunningRef.current) {
-          setWinner(item);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }, 200);
+      // 纯前端随机选择，减少数据库压力
+      const randomIndex = Math.floor(Math.random() * currentData.length);
+      setWinner(currentData[randomIndex]);
+    }, 50); // 提高刷新频率让动画更流畅
   };
 
   const stopLottery = () => {

@@ -11,11 +11,26 @@ interface Signature {
 
 export default function LotterySignature() {
   const [winner, setWinner] = useState<Signature | null>(null);
+  const [allSignatures, setAllSignatures] = useState<Signature[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [currentColor, setCurrentColor] = useState<string>('bg-blue-500');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isRunningRef = useRef(false); // 添加 ref 来追踪运行状态
   const router = useRouter();
+
+  // 加载所有数据
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const response = await fetch('/api/signatures');
+        const data = await response.json();
+        setAllSignatures(data);
+      } catch (error) {
+        console.error('Error loading signatures:', error);
+      }
+    };
+    loadData();
+  }, []);
 
   // 添加键盘事件监听
   useEffect(() => {
@@ -32,7 +47,7 @@ export default function LotterySignature() {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [isRunning]); // 依赖isRunning状态
+  }, [isRunning, allSignatures]); // 依赖isRunning和数据
 
   // 预定义的颜色数组
   const colors = [
@@ -50,6 +65,25 @@ export default function LotterySignature() {
 
   const startLottery = async () => {
     if (isRunning) return;
+    
+    // 如果没有数据，尝试重新加载
+    let currentData = allSignatures;
+    if (currentData.length === 0) {
+      try {
+        const response = await fetch('/api/signatures');
+        currentData = await response.json();
+        setAllSignatures(currentData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        return;
+      }
+    }
+    
+    if (currentData.length === 0) {
+      alert('暂无数据可抽奖');
+      return;
+    }
+
     setIsRunning(true);
     isRunningRef.current = true; // 更新 ref
     const audio = document.getElementById('lottery-music') as HTMLAudioElement;
@@ -61,25 +95,18 @@ export default function LotterySignature() {
       console.warn('Audio play failed:', error);
     }
 
-    intervalRef.current = setInterval(async () => {
-      // 如果已经停止，就不再请求
+    intervalRef.current = setInterval(() => {
+      // 如果已经停止，就不再执行
       if (!isRunningRef.current) return;
 
-      try {
-        const response = await fetch('/api/random-signature');
-        const item = await response.json();
-        
-        // 请求返回后再次检查是否还在运行
-        if (isRunningRef.current) {
-          setWinner(item);
-          // 随机选择背景颜色
-          const randomColor = colors[Math.floor(Math.random() * colors.length)];
-          setCurrentColor(randomColor);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }, 200);
+      // 纯前端随机选择
+      const randomIndex = Math.floor(Math.random() * currentData.length);
+      setWinner(currentData[randomIndex]);
+      
+      // 随机选择背景颜色
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      setCurrentColor(randomColor);
+    }, 50); // 提高刷新频率
   };
 
   const stopLottery = () => {
