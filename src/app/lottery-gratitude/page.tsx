@@ -89,7 +89,7 @@ export default function LotteryGratitude() {
       // 纯前端随机选择，减少数据库压力
       const randomIndex = Math.floor(Math.random() * currentData.length);
       setWinner(currentData[randomIndex]);
-    }, 100); // 刷新频率
+    }, 200); // 刷新频率
   };
 
   const stopLottery = () => {
