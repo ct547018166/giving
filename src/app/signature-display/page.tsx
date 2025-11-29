@@ -10,8 +10,17 @@ interface Signature {
   signature: string;
 }
 
+interface SignatureDisplayItem extends Signature {
+  color: string;
+  top: number;
+  left: number;
+  animationName: string;
+  animationDelay: string;
+  animationDuration: string;
+}
+
 export default function SignatureDisplay() {
-  const [signatures, setSignatures] = useState<Signature[]>([]);
+  const [signatures, setSignatures] = useState<SignatureDisplayItem[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [isQrExpanded, setIsQrExpanded] = useState(false);
@@ -36,8 +45,55 @@ export default function SignatureDisplay() {
     const loadSignatures = async () => {
       try {
         const response = await fetch('/api/signatures');
-        const data = await response.json();
-        setSignatures(data);
+        const data: Signature[] = await response.json();
+        
+        setSignatures(prevSignatures => {
+          const existingMap = new Map(prevSignatures.map(item => [item.id, item]));
+          
+          return data.map(item => {
+            if (existingMap.has(item.id)) {
+              // 保持已存在项目的显示属性
+              const existing = existingMap.get(item.id)!;
+              return { 
+                ...item, 
+                color: existing.color,
+                top: existing.top,
+                left: existing.left,
+                animationName: existing.animationName,
+                animationDelay: existing.animationDelay,
+                animationDuration: existing.animationDuration
+              };
+            }
+            
+            // 为新项目生成随机属性
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const verticalPosition = Math.random() * 80 + 10;
+            const horizontalStart = Math.random() * 100;
+            const moveType = Math.floor(Math.random() * 8);
+            
+            let animationName = 'scroll-diagonal';
+            switch (moveType) {
+              case 0: animationName = 'scroll-right-up'; break;
+              case 1: animationName = 'scroll-right-down'; break;
+              case 2: animationName = 'scroll-left-up'; break;
+              case 3: animationName = 'scroll-left-down'; break;
+              case 4: animationName = 'scroll-horizontal'; break;
+              case 5: animationName = 'scroll-vertical'; break;
+              case 6: animationName = 'scroll-spiral'; break;
+              case 7: animationName = 'scroll-wave'; break;
+            }
+
+            return {
+              ...item,
+              color: randomColor,
+              top: verticalPosition,
+              left: horizontalStart,
+              animationName,
+              animationDelay: `${Math.random() * 8}s`,
+              animationDuration: `${Math.random() * 10 + 20}s`
+            };
+          });
+        });
       } catch (error) {
         console.error('Error loading signatures:', error);
       }
@@ -151,51 +207,15 @@ export default function SignatureDisplay() {
         )}
       </div>
       {signatures.map((item, index) => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        const verticalPosition = Math.random() * 80 + 10;  // 随机垂直位置
-        const horizontalStart = Math.random() * 100;  // 随机水平起始位置
-        const moveType = Math.floor(Math.random() * 8);  // 8种不同的移动类型
-        
-        // 根据移动类型设置不同的动画
-        let animationName = 'scroll-diagonal';
-        let customStyles = {};
-        
-        switch (moveType) {
-          case 0: // 右上斜向
-            animationName = 'scroll-right-up';
-            break;
-          case 1: // 右下斜向
-            animationName = 'scroll-right-down';
-            break;
-          case 2: // 左上斜向
-            animationName = 'scroll-left-up';
-            break;
-          case 3: // 左下斜向
-            animationName = 'scroll-left-down';
-            break;
-          case 4: // 水平向右
-            animationName = 'scroll-horizontal';
-            break;
-          case 5: // 垂直向上
-            animationName = 'scroll-vertical';
-            break;
-          case 6: // 螺旋移动
-            animationName = 'scroll-spiral';
-            break;
-          case 7: // 波浪移动
-            animationName = 'scroll-wave';
-            break;
-        }
-        
         return (
           <div
             key={item.id}
-            className={`absolute text-black p-3 rounded shadow-lg border-2 ${randomColor} ${animationName} overflow-hidden`}
+            className={`absolute text-black p-3 rounded shadow-lg border-2 ${item.color} ${item.animationName} overflow-hidden`}
             style={{
-              left: `${horizontalStart}%`,  // 随机起始位置
-              top: `${verticalPosition}%`,   // 随机垂直位置
-              animationDelay: `${Math.random() * 8}s`,  // 随机延迟
-              animationDuration: `${Math.random() * 10 + 20}s`,  // 随机速度 20-30秒
+              left: `${item.left}%`,  // 随机起始位置
+              top: `${item.top}%`,   // 随机垂直位置
+              animationDelay: item.animationDelay,  // 随机延迟
+              animationDuration: item.animationDuration,  // 随机速度 20-30秒
               maxWidth: '450px',  // 相应增加最大宽度
               minWidth: '280px',  // 增加最小宽度
               maxHeight: '250px',  // 增加最大高度
@@ -207,7 +227,6 @@ export default function SignatureDisplay() {
               padding: '16px',  // 增加内边距
               fontSize: '18px',  // 增大字体大小
               lineHeight: '1.5',  // 调整行高
-              ...customStyles,
             }}
           >
             <strong>{item.nickname}</strong>: {item.signature}

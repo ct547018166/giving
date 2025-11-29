@@ -11,8 +11,17 @@ interface Gratitude {
   gratitude: string;
 }
 
+interface GratitudeDisplayItem extends Gratitude {
+  color: string;
+  top: number;
+  left: number;
+  animationName: string;
+  animationDelay: string;
+  animationDuration: string;
+}
+
 export default function GratitudeDisplay() {
-  const [gratitudes, setGratitudes] = useState<Gratitude[]>([]);
+  const [gratitudes, setGratitudes] = useState<GratitudeDisplayItem[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const router = useRouter();
@@ -35,8 +44,55 @@ export default function GratitudeDisplay() {
     const loadGratitudes = async () => {
       try {
         const response = await fetch('/api/gratitudes');
-        const data = await response.json();
-        setGratitudes(data);
+        const data: Gratitude[] = await response.json();
+        
+        setGratitudes(prevGratitudes => {
+          const existingMap = new Map(prevGratitudes.map(item => [item.id, item]));
+          
+          return data.map(item => {
+            if (existingMap.has(item.id)) {
+              // 保持已存在项目的显示属性
+              const existing = existingMap.get(item.id)!;
+              return { 
+                ...item, 
+                color: existing.color,
+                top: existing.top,
+                left: existing.left,
+                animationName: existing.animationName,
+                animationDelay: existing.animationDelay,
+                animationDuration: existing.animationDuration
+              };
+            }
+            
+            // 为新项目生成随机属性
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            const verticalPosition = Math.random() * 80 + 10;
+            const horizontalStart = Math.random() * 100;
+            const moveType = Math.floor(Math.random() * 8);
+            
+            let animationName = 'float-diagonal';
+            switch (moveType) {
+              case 0: animationName = 'float-right-up'; break;
+              case 1: animationName = 'float-right-down'; break;
+              case 2: animationName = 'float-left-up'; break;
+              case 3: animationName = 'float-left-down'; break;
+              case 4: animationName = 'float-horizontal'; break;
+              case 5: animationName = 'float-vertical'; break;
+              case 6: animationName = 'float-spiral'; break;
+              case 7: animationName = 'float-wave'; break;
+            }
+
+            return {
+              ...item,
+              color: randomColor,
+              top: verticalPosition,
+              left: horizontalStart,
+              animationName,
+              animationDelay: `${Math.random() * 5}s`,
+              animationDuration: `${Math.random() * 10 + 15}s`
+            };
+          });
+        });
       } catch (error) {
         console.error('Error loading gratitudes:', error);
       }
@@ -98,51 +154,15 @@ export default function GratitudeDisplay() {
         </button>
       </div>
             {gratitudes.map((item, index) => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-        const verticalPosition = Math.random() * 80 + 10;  // 随机垂直位置
-        const horizontalStart = Math.random() * 100;  // 随机水平起始位置
-        const moveType = Math.floor(Math.random() * 8);  // 8种不同的移动类型
-        
-        // 根据移动类型设置不同的动画
-        let animationName = 'float-diagonal';
-        let customStyles = {};
-        
-        switch (moveType) {
-          case 0: // 右上斜向
-            animationName = 'float-right-up';
-            break;
-          case 1: // 右下斜向
-            animationName = 'float-right-down';
-            break;
-          case 2: // 左上斜向
-            animationName = 'float-left-up';
-            break;
-          case 3: // 左下斜向
-            animationName = 'float-left-down';
-            break;
-          case 4: // 水平向右
-            animationName = 'float-horizontal';
-            break;
-          case 5: // 垂直向上
-            animationName = 'float-vertical';
-            break;
-          case 6: // 螺旋移动
-            animationName = 'float-spiral';
-            break;
-          case 7: // 波浪移动
-            animationName = 'float-wave';
-            break;
-        }
-        
         return (
           <div
             key={item.id}
-            className={`absolute text-black p-3 rounded shadow-lg border-2 ${randomColor} ${animationName} overflow-hidden`}
+            className={`absolute text-black p-3 rounded shadow-lg border-2 ${item.color} ${item.animationName} overflow-hidden`}
             style={{
-              left: `${horizontalStart}%`,  // 随机起始位置
-              top: `${verticalPosition}%`,   // 随机垂直位置
-              animationDelay: `${Math.random() * 5}s`,  // 随机延迟
-              animationDuration: `${Math.random() * 10 + 15}s`,  // 随机速度 15-25秒
+              left: `${item.left}%`,  // 随机起始位置
+              top: `${item.top}%`,   // 随机垂直位置
+              animationDelay: item.animationDelay,  // 随机延迟
+              animationDuration: item.animationDuration,  // 随机速度 15-25秒
               maxWidth: '450px',  // 相应增加最大宽度
               minWidth: '280px',  // 增加最小宽度
               maxHeight: '250px',  // 增加最大高度
@@ -154,7 +174,6 @@ export default function GratitudeDisplay() {
               padding: '16px',  // 增加内边距
               fontSize: '18px',  // 增大字体大小
               lineHeight: '1.5',  // 调整行高
-              ...customStyles,
             }}
           >
             <strong>{item.id}</strong>: {item.gratitude}
