@@ -70,7 +70,8 @@ export default function SignatureDisplay() {
     // 生成二维码
     const generateQRCode = async () => {
       try {
-        const url = `${window.location.origin}/signature-wall`;
+        // 指向新的移动端优化页面
+        const url = `${window.location.origin}/mobile-signature`;
         // 生成高分辨率二维码，防止放大后模糊
         const qrCodeDataUrl = await QRCode.toDataURL(url, { width: 1000, margin: 2 });
         setQrCodeUrl(qrCodeDataUrl);

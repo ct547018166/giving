@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: "url('/thanksgiving-bg.JPG')" }}>
+    <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: "url('/thanksgiving-bg.svg')" }}>
       <div className="bg-white bg-opacity-90 p-8 rounded-lg text-center transform -translate-x-5">
         <h1 className="text-3xl font-bold mb-6">感恩节活动</h1>
         <div className="space-y-4">

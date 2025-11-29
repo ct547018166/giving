@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function SignatureWall() {
+export default function MobileSignature() {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
