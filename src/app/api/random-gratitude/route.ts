@@ -3,26 +3,16 @@ import db from '@/lib/db';
 
 export async function GET() {
   try {
-    // 1. 先随机选出一个昵称
-    const randomNickname = db.prepare(`
-      SELECT nickname 
-      FROM gratitudes 
-      GROUP BY nickname 
-      ORDER BY RANDOM() 
-      LIMIT 1
-    `).get() as { nickname: string } | undefined;
-
-    if (!randomNickname) {
-      return NextResponse.json({ error: 'No gratitudes found' }, { status: 404 });
-    }
-
-    // 2. 再从该昵称的所有记录中随机选出一条
+    // 直接从所有记录中随机选出一条，这样记录越多的人中奖概率越大
     const gratitude = db.prepare(`
       SELECT * FROM gratitudes 
-      WHERE nickname = ? 
       ORDER BY RANDOM() 
       LIMIT 1
-    `).get(randomNickname.nickname);
+    `).get();
+
+    if (!gratitude) {
+      return NextResponse.json({ error: 'No gratitudes found' }, { status: 404 });
+    }
     
     return NextResponse.json(gratitude);
   } catch (error) {
