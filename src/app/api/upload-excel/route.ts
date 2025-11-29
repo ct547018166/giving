@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
           const nickname = rawNickname ? String(rawNickname).trim() : '';
           
           // 过滤掉特定的昵称
-          if (['林云云', '青橄榄树', '黑门甘露.兰', 'Tony Chen'].includes(nickname)) {
+          if (['林云云', '青橄榄树', '黑门甘露.兰', 'TonyChen'].includes(nickname)) {
             continue;
           }
 
