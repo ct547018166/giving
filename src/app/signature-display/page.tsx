@@ -14,6 +14,7 @@ export default function SignatureDisplay() {
   const [signatures, setSignatures] = useState<Signature[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [isQrExpanded, setIsQrExpanded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const router = useRouter();
 
@@ -114,16 +115,37 @@ export default function SignatureDisplay() {
       </div>
 
       {/* 二维码区域 */}
-      <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">签名墙</h3>
-        <p className="text-sm text-gray-600 mb-3">扫码进入签名墙界面</p>
+      <div 
+        className={`absolute z-50 transition-all duration-500 ease-in-out cursor-pointer ${
+          isQrExpanded 
+            ? 'top-0 left-0 w-screen h-screen bg-black/95 flex items-center justify-start pl-20' 
+            : 'top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg'
+        }`}
+        onClick={() => setIsQrExpanded(!isQrExpanded)}
+        title={isQrExpanded ? "点击缩小" : "点击放大二维码"}
+      >
+        {!isQrExpanded && (
+          <>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">签名墙</h3>
+            <p className="text-sm text-gray-600 mb-3">扫码进入签名墙界面</p>
+          </>
+        )}
         {qrCodeUrl && (
           <img
             src={qrCodeUrl}
             alt="签名墙页面二维码"
-            className="border-2 border-gray-300 rounded"
-            style={{ width: '180px', height: '180px' }}
+            className={`transition-all duration-500 bg-white ${
+              isQrExpanded 
+                ? 'h-[85vh] w-[85vh] object-contain rounded-xl shadow-2xl' 
+                : 'w-[180px] h-[180px] border-2 border-gray-300 rounded'
+            }`}
           />
+        )}
+        {isQrExpanded && (
+          <div className="ml-10 text-white">
+            <h2 className="text-4xl font-bold mb-4">扫码参与签名</h2>
+            <p className="text-xl opacity-80">点击屏幕任意位置缩小</p>
+          </div>
         )}
       </div>
       {signatures.slice(0, 25).map((item, index) => {  // 增加显示数量到25
