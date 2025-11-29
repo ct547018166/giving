@@ -48,6 +48,8 @@ db.exec(`
     nickname TEXT,
     signature TEXT
   );
+
+  CREATE INDEX IF NOT EXISTS idx_signatures_nickname ON signatures(nickname);
 `);
 
 export default db;
