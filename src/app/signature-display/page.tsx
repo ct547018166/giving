@@ -44,7 +44,7 @@ export default function SignatureDisplay() {
     };
 
     loadSignatures();
-    const interval = setInterval(loadSignatures, 30000);
+    const interval = setInterval(loadSignatures, 5000);
     return () => clearInterval(interval);
   }, []);
 
