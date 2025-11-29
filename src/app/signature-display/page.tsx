@@ -71,7 +71,8 @@ export default function SignatureDisplay() {
     const generateQRCode = async () => {
       try {
         const url = `${window.location.origin}/signature-wall`;
-        const qrCodeDataUrl = await QRCode.toDataURL(url);
+        // 生成高分辨率二维码，防止放大后模糊
+        const qrCodeDataUrl = await QRCode.toDataURL(url, { width: 1000, margin: 2 });
         setQrCodeUrl(qrCodeDataUrl);
       } catch (error) {
         console.error('Error generating QR code:', error);
@@ -118,7 +119,7 @@ export default function SignatureDisplay() {
       <div 
         className={`absolute z-50 transition-all duration-500 ease-in-out cursor-pointer ${
           isQrExpanded 
-            ? 'top-0 left-0 w-screen h-screen bg-black/95 flex items-center justify-start pl-20' 
+            ? 'top-0 left-0 w-screen h-screen bg-transparent flex items-center justify-start pl-20' 
             : 'top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg'
         }`}
         onClick={() => setIsQrExpanded(!isQrExpanded)}
