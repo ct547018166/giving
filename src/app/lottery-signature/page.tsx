@@ -106,7 +106,7 @@ export default function LotterySignature() {
       // 随机选择背景颜色
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       setCurrentColor(randomColor);
-    }, 50); // 提高刷新频率
+    }, 100); // 刷新频率
   };
 
   const stopLottery = () => {
