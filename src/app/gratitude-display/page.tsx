@@ -97,7 +97,7 @@ export default function GratitudeDisplay() {
           {isPlaying ? '🔊 音乐播放中' : '🔇 点击播放音乐'}
         </button>
       </div>
-            {gratitudes.slice(0, 40).map((item, index) => {  // 增加显示数量到40，满屏飘动
+            {gratitudes.map((item, index) => {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const verticalPosition = Math.random() * 80 + 10;  // 随机垂直位置
         const horizontalStart = Math.random() * 100;  // 随机水平起始位置

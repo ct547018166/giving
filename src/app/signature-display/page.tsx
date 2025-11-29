@@ -150,7 +150,7 @@ export default function SignatureDisplay() {
           </div>
         )}
       </div>
-      {signatures.slice(0, 25).map((item, index) => {  // 增加显示数量到25
+      {signatures.map((item, index) => {
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         const verticalPosition = Math.random() * 80 + 10;  // 随机垂直位置
         const horizontalStart = Math.random() * 100;  // 随机水平起始位置
