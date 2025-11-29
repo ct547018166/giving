@@ -107,7 +107,7 @@ export default function LotterySignature() {
           {winner ? (
             <div className="flex-1 flex flex-col justify-end items-center">
               <div className="bg-gradient-to-br from-orange-400 via-red-500 to-yellow-500 bg-opacity-30 p-6 rounded-lg border border-orange-300 border-opacity-30 w-full">
-                <p className="text-3xl"><strong>{winner.id}</strong> - {winner.nickname}</p>
+                <p className="text-5xl font-bold"><strong>{winner.id}</strong> - {winner.nickname}</p>
                 <p className="text-5xl mt-4 font-bold leading-relaxed">{winner.signature}</p>
               </div>
             </div>
