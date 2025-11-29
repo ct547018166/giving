@@ -3,21 +3,26 @@ import db from '@/lib/db';
 
 export async function GET() {
   try {
-    // 从去重后的数据中随机抽取一条
-    const signature = db.prepare(`
-      SELECT * FROM signatures 
-      WHERE id IN (
-        SELECT MAX(id) 
-        FROM signatures 
-        GROUP BY nickname
-      )
+    // 1. 先随机选出一个昵称
+    const randomNickname = db.prepare(`
+      SELECT nickname 
+      FROM signatures 
+      GROUP BY nickname 
       ORDER BY RANDOM() 
       LIMIT 1
-    `).get();
+    `).get() as { nickname: string } | undefined;
 
-    if (!signature) {
+    if (!randomNickname) {
       return NextResponse.json({ error: 'No signatures found' }, { status: 404 });
     }
+
+    // 2. 再从该昵称的所有记录中随机选出一条
+    const signature = db.prepare(`
+      SELECT * FROM signatures 
+      WHERE nickname = ? 
+      ORDER BY RANDOM() 
+      LIMIT 1
+    `).get(randomNickname.nickname);
     
     return NextResponse.json(signature);
   } catch (error) {
