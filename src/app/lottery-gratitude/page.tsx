@@ -42,7 +42,7 @@ export default function LotteryGratitude() {
     const audio = document.getElementById('lottery-music') as HTMLAudioElement;
 
     try {
-      audio.currentTime = 34; // 从34秒开始播放
+      audio.currentTime = 46; // 从46秒开始播放
       await audio.play();
     } catch (error) {
       console.warn('Audio play failed:', error);
