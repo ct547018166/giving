@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 
 export default function Experience({ photos }: { photos: string[] }) {
   return (
-    <div className="w-full h-screen bg-black relative">
+    <div className="w-full h-screen bg-black relative z-0">
       <div className="absolute top-8 right-8 z-10 pointer-events-none">
          <div style={{ 
           color: '#FFD700', 
