@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
 
   // 禁用X-Powered-By头
   poweredByHeader: false,
+
+  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei', '@react-three/postprocessing'],
 };
 
 export default nextConfig;

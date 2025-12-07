@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { GameProvider } from '@/components/christmas/GameContext';
 import Experience from '@/components/christmas/Experience';
 import HandController from '@/components/christmas/HandController';
+import BackgroundMusic from '@/components/christmas/BackgroundMusic';
 
-export default function Home() {
+export default function ChristmasPage() {
   const [photos, setPhotos] = useState<string[]>([
-    '/thanksgiving-bg.JPG', // Placeholder
+    '/lottery-music-placeholder.txt', // Placeholder, will fail to load image but won't crash
+    // Add some default placeholder images if available or just empty
   ]);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,10 +28,13 @@ export default function Home() {
         {/* Hand Controller (Webcam & Logic) */}
         <HandController />
 
+        {/* Background Music */}
+        <BackgroundMusic />
+
         {/* UI Overlay */}
         <div className="absolute top-4 left-4 z-10 text-white/80 pointer-events-none">
           <h1 className="text-4xl font-bold text-gold mb-2 drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">
-            🎄 圣诞树
+            🎄 圣诞许愿树
           </h1>
           <div className="space-y-2 text-sm bg-black/30 p-4 rounded-lg backdrop-blur-md border border-white/10">
             <p><span className="font-bold text-green-400">✊ 握拳</span> : 合拢成树</p>
@@ -39,14 +44,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Menu Button (Top Right) */}
-        <a href="/menu" className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-colors flex flex-col items-center group">
-          <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </div>
-          <span className="text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">菜单</span>
+        {/* Back Button */}
+        <a href="/" className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </a>
 
         {/* Photo Upload */}
