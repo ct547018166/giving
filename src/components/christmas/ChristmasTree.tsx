@@ -252,6 +252,7 @@ function PhotoCloud({ photos, conePositions, scatterPositions }: { photos: strin
   const { camera } = useThree();
   const groupRef = useRef<THREE.Group>(null);
   const prevMode = useRef(gameState.current);
+  const lastFocusedIndex = useRef<number>(-1);
   
   // Assign each photo to a "slot" in the particle system
   const photoPositions = useMemo(() => {
@@ -277,25 +278,22 @@ function PhotoCloud({ photos, conePositions, scatterPositions }: { photos: strin
 
     // Focus Selection Logic
     if (mode === 'FOCUS' && prevMode.current !== 'FOCUS') {
-        // Find closest photo to camera to focus on
-        let closestDist = Infinity;
-        let closestIndex = -1;
-        
-        photoPositions.forEach((pos, i) => {
-            // Calculate world position of the scatter point
-            const vec = pos.scatter.clone();
-            // Use world matrix to get actual position including parent rotation
-            vec.applyMatrix4(groupRef.current!.matrixWorld);
-            
-            const dist = vec.distanceTo(camera.position);
-            if (dist < closestDist) {
-                closestDist = dist;
-                closestIndex = i;
+        // Pick a random photo that is different from the last one
+        if (photos.length > 0) {
+            let newIndex;
+            if (photos.length === 1) {
+                newIndex = 0;
+            } else {
+                // Try to find a different photo, but don't loop forever if something is wrong
+                let attempts = 0;
+                do {
+                    newIndex = Math.floor(Math.random() * photos.length);
+                    attempts++;
+                } while (newIndex === lastFocusedIndex.current && attempts < 10);
             }
-        });
-        
-        if (closestIndex !== -1) {
-            focusedPhotoId.current = closestIndex.toString();
+            
+            focusedPhotoId.current = newIndex.toString();
+            lastFocusedIndex.current = newIndex;
         }
     } else if (mode !== 'FOCUS') {
         focusedPhotoId.current = null;
@@ -337,7 +335,7 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
       
       // Focus Logic
       if (mode === 'FOCUS' && focusedPhotoId.current === index.toString()) {
-        targetScale = 5; // Big zoom
+        targetScale = 2.0; // Reduced zoom
         
         // Move to front of camera
         // Target world position: Camera position + forward vector * distance

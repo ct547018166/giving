@@ -53,8 +53,8 @@ export default function BackgroundMusic() {
 
   return (
     <div 
-      className="fixed bottom-32 left-8 z-[9999] pointer-events-auto"
-      style={{ position: 'fixed', bottom: '120px', left: '32px', zIndex: 99999 }}
+      className="fixed bottom-52 left-8 z-[9999] pointer-events-auto"
+      style={{ position: 'fixed', bottom: '220px', left: '32px', zIndex: 99999 }}
     >
       <audio ref={audioRef} loop>
         <source src="/MerryChristmas.mp3" type="audio/mpeg" />

@@ -51,7 +51,7 @@ export default function ChristmasPage() {
         </a>
 
         {/* Photo Upload & Controls */}
-        <div className="absolute bottom-8 left-8 z-20 flex items-center gap-4">
+        <div className="absolute bottom-8 left-8 z-20 flex flex-col items-start gap-4">
           <label className="cursor-pointer bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white px-6 py-3 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 border border-gold/30">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -66,9 +66,9 @@ export default function ChristmasPage() {
             />
           </label>
 
-          {photos.length > 1 && (
+          {photos.length > 0 && (
             <button 
-              onClick={() => setPhotos(['/thanksgiving-bg.JPG'])}
+              onClick={() => setPhotos([])}
               className="bg-black/40 hover:bg-black/60 text-white/80 hover:text-white px-4 py-3 rounded-full backdrop-blur-md border border-white/20 transition-all flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
