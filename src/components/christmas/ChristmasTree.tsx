@@ -357,7 +357,8 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
     // Interpolate position
     // If focused, snap faster to avoid lag
     const isFocused = mode === 'FOCUS' && focusedPhotoId.current === index.toString();
-    ref.current.position.lerp(target, isFocused ? delta * 10 : delta * 3);
+    // Use a smoother lerp factor (5 instead of 10) for focus
+    ref.current.position.lerp(target, isFocused ? delta * 5 : delta * 3);
     
     // Look at camera
     ref.current.lookAt(state.camera.position);

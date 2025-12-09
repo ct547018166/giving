@@ -129,9 +129,12 @@ export default function HandController() {
         
             } else {
               handRef.current.isTracking = false;
-              // Also exit focus if hand is lost
+              // Also exit focus if hand is lost, but with debounce
               if (gameState.current === 'FOCUS') {
-                gameState.current = 'SCATTER';
+                 const now = Date.now();
+                 if (now - lastPinchTime.current > 500) {
+                    gameState.current = 'SCATTER';
+                 }
               }
             }
             canvasCtx.restore();
@@ -214,13 +217,14 @@ export default function HandController() {
 
     // Pinch detection: Thumb tip and Index tip are close
     const pinchDist = Math.hypot(landmarks[4].x - landmarks[8].x, landmarks[4].y - landmarks[8].y);
-    // Increased threshold to make it easier (0.05 -> 0.08)
-    const isPinch = pinchDist < 0.08;
+    // Increased threshold to make it easier (0.08 -> 0.12)
+    const isPinch = pinchDist < 0.12;
 
     // Prioritize Pinch. 
     // We require index finger to be "open" (extended from palm) to distinguish from a tight fist.
     // This allows "OK" sign (Pinch with other fingers open) to work.
-    if (isPinch && indexOpen) return 'PINCH';
+    // Relaxed check: If pinch distance is very small, we assume pinch regardless of index state
+    if (isPinch && (indexOpen || pinchDist < 0.05)) return 'PINCH';
 
     if (openFingersCount <= 1) return 'FIST';
     if (openFingersCount >= 4) return 'OPEN';
