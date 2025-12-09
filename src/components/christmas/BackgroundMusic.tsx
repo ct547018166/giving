@@ -57,7 +57,7 @@ export default function BackgroundMusic() {
       style={{ position: 'fixed', bottom: '220px', left: '32px', zIndex: 99999 }}
     >
       <audio ref={audioRef} loop>
-        <source src="/MerryChristmas.mp3" type="audio/mpeg" />
+        <source src="/Christmas List.mp3" type="audio/mpeg" />
         Your browser does not support the audio element.
       </audio>
       
@@ -97,7 +97,7 @@ export default function BackgroundMusic() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-500 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
             </span>
-            <span className="text-sm font-medium">Playing: Merry Christmas</span>
+            <span className="text-sm font-medium">Playing: Christmas List</span>
           </>
         ) : (
           <>
