@@ -21,6 +21,9 @@ export default function HandController() {
   const requestRef = useRef<number>(0);
   const { handRef, gameState } = useGame();
   const [status, setStatus] = useState('Initializing...');
+  
+  // Debounce ref for pinch gesture
+  const lastPinchTime = useRef<number>(0);
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return;
@@ -85,19 +88,25 @@ export default function HandController() {
               };
         
               // Rotation control (based on x position for now)
-              handRef.current.rotation = (landmarks[9].x - 0.5) * 4; // -2 to 2 range roughly
+              handRef.current.rotation = -(landmarks[9].x - 0.5) * 4; // -2 to 2 range roughly
         
               // State Machine Logic
+              const now = Date.now();
+
               if (gesture === 'FIST') {
                 gameState.current = 'CONE';
               } else if (gesture === 'PINCH') {
+                lastPinchTime.current = now;
                 if (gameState.current === 'SCATTER' || gameState.current === 'FOCUS') {
                   gameState.current = 'FOCUS';
                 }
               } else {
                 // OPEN or NONE - Exit focus if active
                 if (gameState.current === 'FOCUS') {
-                  gameState.current = 'SCATTER';
+                  // Add 500ms debounce to prevent flickering
+                  if (now - lastPinchTime.current > 500) {
+                    gameState.current = 'SCATTER';
+                  }
                 }
                 
                 if (gesture === 'OPEN' && gameState.current === 'CONE') {

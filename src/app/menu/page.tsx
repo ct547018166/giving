@@ -11,6 +11,7 @@ export default function Menu() {
         <h1 className="text-3xl font-bold mb-6">活动菜单</h1>
         <div className="space-y-4">
           <a href="/" className="block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">🎄 圣诞许愿树</a>
+          <a href="/christmas-lottery" className="block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">🎁 圣诞大抽奖</a>
           <a href="/upload" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">信息录入</a>
           <a href="/gratitude-display" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">感恩展示</a>
           <a href="/lottery-gratitude" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">感恩抽奖</a>
