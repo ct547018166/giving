@@ -155,6 +155,13 @@ export default function LotteryPage() {
     
     if (rollingIndices.includes(index)) return;
 
+    // Start music if not playing
+    if (audioRef.current && !musicPlaying) {
+        audioRef.current.currentTime = 46;
+        audioRef.current.play().catch(() => {});
+        setMusicPlaying(true);
+    }
+
     // Start rolling animation for this index
     setRollingIndices(prev => [...prev, index]);
 
@@ -200,7 +207,17 @@ export default function LotteryPage() {
       return pool;
     });
 
-    setRollingIndices(prev => prev.filter(i => i !== index));
+    setRollingIndices(prev => {
+        const next = prev.filter(i => i !== index);
+        // Stop music if no more rolling
+        if (next.length === 0 && !isRolling) {
+             if (audioRef.current) {
+                audioRef.current.pause();
+                setMusicPlaying(false);
+             }
+        }
+        return next;
+    });
   };
 
   const stopAllRedraws = () => {
