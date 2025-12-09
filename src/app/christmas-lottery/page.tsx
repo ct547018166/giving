@@ -173,10 +173,10 @@ export default function LotteryPage() {
 
         {/* Main Display */}
         {!isFinished ? (
-          <div className="w-full max-w-4xl">
+          <div className="w-full max-w-[95vw]">
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-red-500 mb-2 drop-shadow-lg">{currentPrize.name}</h2>
-              <p className="text-gray-400">正在抽取 {currentPrize.count} 位幸运观众</p>
+              <h2 className="text-5xl font-bold text-red-500 mb-4 drop-shadow-lg">{currentPrize.name}</h2>
+              <p className="text-xl text-gray-400">正在抽取 {currentPrize.count} 位幸运观众</p>
             </div>
 
             {/* Numbers Display */}
@@ -184,8 +184,8 @@ export default function LotteryPage() {
               {isRolling ? (
                 // Rolling State
                 Array.from({ length: currentPrize.count }).map((_, i) => (
-                  <div key={i} className="w-40 h-40 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.5)] border-2 border-yellow-400/50">
-                    <span className="text-5xl font-mono font-bold text-white">
+                  <div key={i} className="w-64 h-64 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.5)] border-4 border-yellow-400/50">
+                    <span className="text-[6rem] font-mono font-bold text-white leading-none">
                       {rollingNumbers[i] || '?'}
                     </span>
                   </div>
@@ -198,9 +198,9 @@ export default function LotteryPage() {
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: i * 0.2, type: "spring" }}
-                    className="w-40 h-40 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(234,179,8,0.6)] border-4 border-white"
+                    className="w-64 h-64 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(234,179,8,0.6)] border-8 border-white"
                   >
-                    <span className="text-5xl font-mono font-bold text-white drop-shadow-md">
+                    <span className="text-[6rem] font-mono font-bold text-white drop-shadow-md leading-none">
                       {num}
                     </span>
                   </motion.div>
@@ -208,8 +208,8 @@ export default function LotteryPage() {
               ) : (
                 // Initial State
                 Array.from({ length: currentPrize.count }).map((_, i) => (
-                  <div key={i} className="w-40 h-40 bg-white/5 rounded-2xl flex items-center justify-center border-2 border-dashed border-white/20">
-                    <span className="text-4xl text-white/20">?</span>
+                  <div key={i} className="w-64 h-64 bg-white/5 rounded-3xl flex items-center justify-center border-4 border-dashed border-white/20">
+                    <span className="text-7xl text-white/20">?</span>
                   </div>
                 ))
               )}
@@ -243,13 +243,13 @@ export default function LotteryPage() {
         )}
 
         {/* History / Sidebar */}
-        <div className="fixed left-8 top-1/2 -translate-y-1/2 w-64 bg-black/40 backdrop-blur-xl p-6 rounded-2xl border border-white/10 hidden xl:block">
-          <h3 className="text-xl font-bold text-yellow-400 mb-4 border-b border-white/10 pb-2">中奖名单</h3>
-          <div className="space-y-6">
+        <div className="fixed left-4 top-4 w-56 bg-black/40 backdrop-blur-xl p-4 rounded-xl border border-white/10 hidden lg:block z-20">
+          <h3 className="text-lg font-bold text-yellow-400 mb-3 border-b border-white/10 pb-2">中奖名单</h3>
+          <div className="space-y-4">
             {PRIZES.slice().reverse().map((prize) => (
-              <div key={prize.id} className="opacity-80">
-                <div className="text-sm text-gray-400 mb-1">{prize.name}</div>
-                <div className="flex flex-wrap gap-2">
+              <div key={prize.id} className="opacity-90">
+                <div className="text-xs text-gray-400 mb-1">{prize.name}</div>
+                <div className="flex flex-wrap gap-1">
                   {winners[prize.id].length > 0 ? (
                     winners[prize.id].map(num => (
                       <span key={num} className="text-green-400 font-mono font-bold">{num}</span>
