@@ -331,7 +331,7 @@ export default function LotteryPage() {
                 // Rolling State
                 Array.from({ length: customCount }).map((_, i) => (
                   <div key={i} className="w-64 h-64 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.5)] border-4 border-yellow-400/50">
-                    <span className="text-[6rem] font-mono font-bold text-white leading-none">
+                    <span className="text-[7rem] font-mono font-bold text-white leading-none">
                       {rollingNumbers[i] || '?'}
                     </span>
                   </div>
@@ -348,7 +348,7 @@ export default function LotteryPage() {
                         key={`rolling-${i}`} 
                         className="relative w-64 h-64 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.5)] border-4 border-yellow-400/50"
                       >
-                        <span className="text-[6rem] font-mono font-bold text-white leading-none pb-8">
+                        <span className="text-[7rem] font-mono font-bold text-white leading-none pb-8">
                           {num}
                         </span>
                         <button
@@ -373,7 +373,7 @@ export default function LotteryPage() {
                         transition={{ type: "spring" }}
                         className="relative group w-64 h-64 bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(234,179,8,0.6)] border-8 border-white cursor-pointer"
                         >
-                        <span className="text-[6rem] font-mono font-bold text-white drop-shadow-md leading-none">
+                        <span className="text-[7rem] font-mono font-bold text-white drop-shadow-md leading-none">
                             {num}
                         </span>
                         
