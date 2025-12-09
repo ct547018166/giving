@@ -89,7 +89,8 @@ export default function LotteryPage() {
     setIsRolling(true);
     
     // Start music if not playing
-    if (audioRef.current && !musicPlaying) {
+    if (audioRef.current) {
+        audioRef.current.currentTime = 46;
         audioRef.current.play().catch(() => {});
         setMusicPlaying(true);
     }
@@ -108,6 +109,13 @@ export default function LotteryPage() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+
+    // Stop music
+    if (audioRef.current) {
+        audioRef.current.pause();
+        setMusicPlaying(false);
+    }
+
     drawWinners();
     setIsRolling(false);
   };
