@@ -267,7 +267,7 @@ export default function LotteryPage() {
           className="text-center mb-12"
         >
           <h1 className="text-5xl md:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-100 to-yellow-300 drop-shadow-[0_0_15px_rgba(253,224,71,0.5)] mb-4">
-            国度降临从马槽到起初
+            圣诞大抽奖
           </h1>
           <p className="text-xl text-blue-200 tracking-widest">CHRISTMAS LOTTERY 2025</p>
         </motion.div>
