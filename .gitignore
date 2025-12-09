@@ -48,6 +48,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# User Uploads
+public/uploads/christmas/*
+!public/uploads/christmas/.gitkeep
+
+
 # Runtime data
 pids
 *.pid

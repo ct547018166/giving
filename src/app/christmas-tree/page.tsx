@@ -1,20 +1,73 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GameProvider } from '@/components/christmas/GameContext';
 import Experience from '@/components/christmas/Experience';
 import HandController from '@/components/christmas/HandController';
 import BackgroundMusic from '@/components/christmas/BackgroundMusic';
 
 export default function ChristmasPage() {
-  const [photos, setPhotos] = useState<string[]>([
-    '/thanksgiving-bg.JPG', // Placeholder
-  ]);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newPhotos = Array.from(e.target.files).map(file => URL.createObjectURL(file));
-      setPhotos(prev => [...prev, ...newPhotos]);
+  // Fetch photos from DB on mount
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const res = await fetch('/api/christmas-photos');
+        if (res.ok) {
+          const urls = await res.json();
+          setPhotos(urls);
+        }
+      } catch (error) {
+        console.error('Failed to fetch photos:', error);
+      }
+    };
+    fetchPhotos();
+  }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setIsUploading(true);
+      const files = Array.from(e.target.files);
+      
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        try {
+            const res = await fetch('/api/christmas-photos', {
+                method: 'POST',
+                body: formData
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setPhotos(prev => {
+                    // If it was just the placeholder, replace it. Otherwise append.
+                    if (prev.length === 1 && prev[0] === '/thanksgiving-bg.JPG') {
+                        return [data.url];
+                    }
+                    return [...prev, data.url];
+                });
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('上传失败: ' + file.name);
+        }
+      }
+      setIsUploading(false);
+    }
+  };
+
+  const handleClearPhotos = async () => {
+    if (confirm('确定要清空所有照片吗？这将删除服务器上的存档。')) {
+        try {
+            await fetch('/api/christmas-photos', { method: 'DELETE' });
+            setPhotos([]);
+        } catch (error) {
+            console.error('Clear failed:', error);
+            alert('清空失败');
+        }
     }
   };
 
@@ -56,19 +109,20 @@ export default function ChristmasPage() {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span>上传照片挂上树</span>
+            <span>{isUploading ? '上传中...' : '上传照片挂上树'}</span>
             <input 
               type="file" 
               multiple 
               accept="image/*" 
               className="hidden" 
               onChange={handleFileUpload}
+              disabled={isUploading}
             />
           </label>
 
           {photos.length > 0 && (
             <button 
-              onClick={() => setPhotos([])}
+              onClick={handleClearPhotos}
               className="bg-black/40 hover:bg-black/60 text-white/80 hover:text-white px-4 py-3 rounded-full backdrop-blur-md border border-white/20 transition-all flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
