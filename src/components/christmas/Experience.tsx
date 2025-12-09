@@ -17,16 +17,18 @@ export default function Experience({ photos }: { photos: string[] }) {
           fontWeight: 'bold',
           textShadow: '0 0 10px #FFD700, 0 0 20px #FFD700',
         }}>
-          和平教会 Peach Church 2025
+            
         </div>
       </div>
       <Canvas camera={{ position: [0, 0, 14], fov: 45 }}>
-        <color attach="background" args={['#051005']} />
+        <color attach="background" args={['#0a1a0a']} />
         
-        <ambientLight intensity={1.5} />
-        <hemisphereLight intensity={1} groundColor="#000000" />
-        <pointLight position={[10, 10, 10]} intensity={2} />
-        <pointLight position={[-10, -10, -10]} intensity={1} />
+        <ambientLight intensity={3.0} />
+        <hemisphereLight intensity={2} groundColor="#222222" />
+        <pointLight position={[10, 10, 10]} intensity={5} />
+        <pointLight position={[-10, 10, -10]} intensity={5} />
+        <directionalLight position={[0, 10, 5]} intensity={4} color="#fff" />
+        <spotLight position={[0, 10, 0]} angle={0.5} penumbra={1} intensity={4} castShadow />
 
         <Suspense fallback={null}>
           {/* <Environment preset="night" /> */}
