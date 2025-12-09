@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import StarryBackground from '@/components/christmas/StarryBackground';
 
 type PrizeType = 'third' | 'second' | 'first' | 'grand';
 
@@ -35,27 +36,11 @@ export default function LotteryPage() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const singleRollingIntervals = useRef<Record<number, NodeJS.Timeout>>({});
   const [musicPlaying, setMusicPlaying] = useState(false);
-  const [snowflakes, setSnowflakes] = useState<Array<{
-    left: string;
-    width: string;
-    height: string;
-    animationDuration: string;
-    animationDelay: string;
-  }>>([]);
 
   // Initialize pool 1-1000
   useEffect(() => {
     const pool = Array.from({ length: 1000 }, (_, i) => i + 1);
     setAvailableNumbers(pool);
-    
-    // Generate snowflakes on client side only to avoid hydration mismatch
-    setSnowflakes(Array.from({ length: 50 }).map(() => ({
-      left: `${Math.random() * 100}%`,
-      width: `${Math.random() * 5 + 2}px`,
-      height: `${Math.random() * 5 + 2}px`,
-      animationDuration: `${Math.random() * 5 + 5}s`,
-      animationDelay: `${Math.random() * 5}s`,
-    })));
   }, []);
 
   const toggleMusic = () => {
@@ -235,25 +220,10 @@ export default function LotteryPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-gradient-to-b from-[#0f172a] to-[#1e293b] text-white overflow-hidden relative font-sans">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-        {/* Snowflakes (CSS animation) */}
-        {snowflakes.map((flake, i) => (
-          <div
-            key={i}
-            className="absolute bg-white rounded-full opacity-70 animate-fall"
-            style={{
-              left: flake.left,
-              top: `-10px`,
-              width: flake.width,
-              height: flake.height,
-              animationDuration: flake.animationDuration,
-              animationDelay: flake.animationDelay,
-            }}
-          />
-        ))}
+    <main className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
+      {/* 3D Background */}
+      <div className="absolute inset-0 z-0">
+          <StarryBackground />
       </div>
 
       {/* Audio */}
@@ -491,17 +461,6 @@ export default function LotteryPage() {
         </div>
       </div>
 
-      <style jsx global>{`
-        @keyframes fall {
-          0% { transform: translateY(-10vh) translateX(0); }
-          100% { transform: translateY(110vh) translateX(20px); }
-        }
-        .animate-fall {
-          animation-name: fall;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
-        }
-      `}</style>
-    </main>
+      </main>
   );
 }
