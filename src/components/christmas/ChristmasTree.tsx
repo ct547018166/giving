@@ -29,7 +29,7 @@ const TopStar = () => {
     <group position={[0, 4.2, 0]}>
       <mesh>
         <extrudeGeometry args={[shape, { depth: 0.1, bevelEnabled: false }]} />
-        <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={4} toneMapped={false} />
+        <meshStandardMaterial color="#FFD700" emissive="#FFD700" emissiveIntensity={2} toneMapped={false} />
       </mesh>
     </group>
   );
@@ -50,10 +50,10 @@ export default function ChristmasTree({ photos }: { photos: string[] }) {
   // Generate initial data
   const particles = useMemo(() => {
     const palette = [
-      new THREE.Color('#006633'), // Brighter Green
-      new THREE.Color('#2E8B57'), // Sea Green
-      new THREE.Color('#E0E0E0'), // Brighter Silver
-      new THREE.Color('#CC0000'), // Brighter Red
+      new THREE.Color('#004225'), // British Racing Green
+      new THREE.Color('#1A5D1A'), // Forest Green
+      new THREE.Color('#C0C0C0'), // Silver
+      new THREE.Color('#8B0000'), // Dark Red
     ];
 
     const bodyP = [], bodyCPos = [], bodySPos = [], bodyCols = [];
@@ -232,7 +232,7 @@ export default function ChristmasTree({ photos }: { photos: string[] }) {
         <meshStandardMaterial 
           color="#FFD700"
           emissive="#FFD700"
-          emissiveIntensity={2.5}
+          emissiveIntensity={0.8}
           toneMapped={false}
         />
       </instancedMesh>
