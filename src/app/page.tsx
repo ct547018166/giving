@@ -4,14 +4,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-red-700 to-green-800 flex flex-col items-center justify-center text-white p-4">
       <div className="max-w-md w-full bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20 text-center">
-        <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">🎄 圣诞快乐 🎅</h1>
+        <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">🎄 圣诞快乐 🎁 </h1>
         
         <div className="space-y-4">
           <Link 
             href="/christmas-tree" 
             className="block w-full py-4 px-6 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-xl transition-all transform hover:scale-105 shadow-lg border-2 border-green-400"
           >
-            🎄 圣诞许愿树
+            🎄 圣诞树
           </Link>
           
           <Link 
