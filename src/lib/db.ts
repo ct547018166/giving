@@ -49,6 +49,12 @@ db.exec(`
     signature TEXT
   );
 
+  CREATE TABLE IF NOT EXISTS christmas_photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE INDEX IF NOT EXISTS idx_signatures_nickname ON signatures(nickname);
 `);
 
