@@ -66,6 +66,19 @@ export default function HandController() {
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
               const landmarks = results.multiHandLandmarks[0];
               
+              // Distance Check: Calculate hand size (Wrist to Middle Finger MCP)
+              // If hand is too small (too far), ignore it
+              const wrist = landmarks[0];
+              const middleMcp = landmarks[9];
+              const handSize = Math.hypot(wrist.x - middleMcp.x, wrist.y - middleMcp.y);
+              
+              if (handSize < 0.15) {
+                 handRef.current.isTracking = false;
+                 if (gameState.current === 'FOCUS') gameState.current = 'SCATTER';
+                 canvasCtx.restore();
+                 return;
+              }
+
               // Draw landmarks
               drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 2 });
               drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 1 });
