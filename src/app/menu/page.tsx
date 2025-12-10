@@ -18,6 +18,9 @@ export default function Menu() {
           <a href="/signature-wall" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">签名墙</a>
           <a href="/signature-display" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">签名展示</a>
           <a href="/lottery-signature" className="block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">签名抽奖</a>
+          <div className="pt-4 border-t border-gray-200">
+            <a href="/maintenance" className="block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">🛠 数据维护</a>
+          </div>
         </div>
       </div>
     </div>

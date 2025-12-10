@@ -21,6 +21,15 @@ export default function Home() {
             🎁 圣诞大抽奖
           </Link>
 
+          <div className="pt-4 border-t border-white/20 mt-6">
+            <Link 
+              href="/maintenance" 
+              className="block w-full py-3 px-6 bg-white/5 hover:bg-white/10 text-gray-200 rounded-xl font-bold text-lg transition-all border border-white/10"
+            >
+              🛠 数据维护
+            </Link>
+          </div>
+
           {/* 感恩节内容暂时隐藏
           <div className="pt-4 border-t border-white/20 mt-6 opacity-50">
             <p className="text-sm text-gray-300 mb-4">感恩节活动</p>
