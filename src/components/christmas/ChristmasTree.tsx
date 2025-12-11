@@ -39,7 +39,7 @@ const PARTICLE_COUNT = 1500;
 const CONE_HEIGHT = 8;
 const CONE_RADIUS = 3.5;
 
-export default function ChristmasTree({ photos }: { photos: string[] }) {
+export default function ChristmasTree({ photos, onDeletePhoto }: { photos: string[], onDeletePhoto?: (url: string) => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const lightMeshRef = useRef<THREE.InstancedMesh>(null);
@@ -241,13 +241,13 @@ export default function ChristmasTree({ photos }: { photos: string[] }) {
       
       {/* Photos */}
       <Suspense fallback={null}>
-        <PhotoCloud photos={photos} conePositions={particles.body.conePositions} scatterPositions={particles.body.scatterPositions} />
+        <PhotoCloud photos={photos} conePositions={particles.body.conePositions} scatterPositions={particles.body.scatterPositions} onDeletePhoto={onDeletePhoto} />
       </Suspense>
     </group>
   );
 }
 
-function PhotoCloud({ photos, conePositions, scatterPositions }: { photos: string[], conePositions: number[], scatterPositions: number[] }) {
+function PhotoCloud({ photos, conePositions, scatterPositions, onDeletePhoto }: { photos: string[], conePositions: number[], scatterPositions: number[], onDeletePhoto?: (url: string) => void }) {
   const { gameState, handRef, focusedPhotoId } = useGame();
   const { camera } = useThree();
   const groupRef = useRef<THREE.Group>(null);
@@ -310,16 +310,30 @@ function PhotoCloud({ photos, conePositions, scatterPositions }: { photos: strin
           url={url} 
           targetPos={photoPositions[i]} 
           index={i}
+          onDelete={() => onDeletePhoto?.(url)}
         />
       ))}
     </group>
   );
 }
 
-function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: THREE.Vector3, scatter: THREE.Vector3 }, index: number }) {
+function PhotoItem({ url, targetPos, index, onDelete }: { url: string, targetPos: { cone: THREE.Vector3, scatter: THREE.Vector3 }, index: number, onDelete?: () => void }) {
   const groupRef = useRef<THREE.Group>(null);
   const { gameState, focusedPhotoId } = useGame();
   const [hovered, setHover] = useState(false);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout>>(null);
+
+  const handlePointerOver = (e: any) => {
+    e.stopPropagation();
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+    setHover(true);
+  };
+
+  const handlePointerOut = () => {
+    hoverTimeout.current = setTimeout(() => {
+      setHover(false);
+    }, 200);
+  };
   
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -370,7 +384,11 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
   return (
     <group ref={groupRef}>
       {/* Polaroid Background */}
-      <mesh position={[0, -0.1, -0.01]}>
+      <mesh 
+        position={[0, -0.1, -0.01]}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
+      >
         <planeGeometry args={[1.1, 1.35]} />
         <meshStandardMaterial color="#ffffff" roughness={0.8} />
       </mesh>
@@ -379,9 +397,45 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
         url={url}
         transparent
         scale={[1, 1]}
-        onPointerOver={() => setHover(true)}
-        onPointerOut={() => setHover(false)}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
       />
+
+      {hovered && onDelete && (
+        <Html position={[0.45, 0.55, 0.05]} center transform>
+          <div 
+            onMouseEnter={() => {
+              if (hoverTimeout.current) clearTimeout(hoverTimeout.current);
+              setHover(true);
+            }}
+            onMouseLeave={() => {
+              handlePointerOut();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            style={{
+              background: 'rgba(255, 0, 0, 0.8)',
+              color: 'white',
+              borderRadius: '50%',
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              pointerEvents: 'auto'
+            }}
+            title="删除照片"
+          >
+            ×
+          </div>
+        </Html>
+      )}
     </group>
   );
 }

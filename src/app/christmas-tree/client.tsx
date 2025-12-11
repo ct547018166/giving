@@ -71,11 +71,23 @@ export default function ChristmasPage() {
     }
   };
 
+  const handleDeletePhoto = async (url: string) => {
+    if (confirm('确定要删除这张照片吗？')) {
+      try {
+        await fetch(`/api/christmas-photos?url=${encodeURIComponent(url)}`, { method: 'DELETE' });
+        setPhotos(prev => prev.filter(p => p !== url));
+      } catch (error) {
+        console.error('Delete failed:', error);
+        alert('删除失败');
+      }
+    }
+  };
+
   return (
     <GameProvider>
       <main className="relative w-full h-screen overflow-hidden bg-black">
         {/* 3D Scene */}
-        <Experience photos={photos} />
+        <Experience photos={photos} onDeletePhoto={handleDeletePhoto} />
 
         {/* Hand Controller (Webcam & Logic) */}
         <HandController />

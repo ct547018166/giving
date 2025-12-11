@@ -6,7 +6,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import ChristmasTree from './ChristmasTree';
 import { Suspense } from 'react';
 
-export default function Experience({ photos }: { photos: string[] }) {
+export default function Experience({ photos, onDeletePhoto }: { photos: string[], onDeletePhoto?: (url: string) => void }) {
   return (
     <div className="w-full h-screen bg-black relative z-0">
       <div className="absolute top-8 right-8 z-10 pointer-events-none">
@@ -36,7 +36,7 @@ export default function Experience({ photos }: { photos: string[] }) {
           {/* Tree Sparkles (Fairy Lights) */}
           <Sparkles count={100} scale={10} size={3} speed={0.3} opacity={0.8} color="#FFD700" />
           
-          <ChristmasTree photos={photos} />
+          <ChristmasTree photos={photos} onDeletePhoto={onDeletePhoto} />
         </Suspense>
           
         <EffectComposer>

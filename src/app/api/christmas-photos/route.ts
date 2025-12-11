@@ -58,27 +58,45 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's photos to delete files
-    const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(session.user.id);
-    
-    // Delete files
-    photos.forEach((p: any) => {
-      const filename = path.basename(p.url);
-      const filepath = path.join(UPLOAD_DIR, filename);
-      if (fs.existsSync(filepath)) {
-        fs.unlinkSync(filepath);
-      }
-    });
+    const { searchParams } = new URL(request.url);
+    const urlToDelete = searchParams.get('url');
 
-    // Clear database for this user only
-    db.prepare('DELETE FROM christmas_photos WHERE user_id = ?').run(session.user.id);
+    if (urlToDelete) {
+      // Delete single photo
+      const photo = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? AND url = ?').get(session.user.id, urlToDelete) as { url: string } | undefined;
+      
+      if (photo) {
+        const filename = path.basename(photo.url);
+        const filepath = path.join(UPLOAD_DIR, filename);
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+        }
+        db.prepare('DELETE FROM christmas_photos WHERE user_id = ? AND url = ?').run(session.user.id, urlToDelete);
+      }
+    } else {
+      // Delete all photos (existing behavior)
+      // Get user's photos to delete files
+      const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(session.user.id);
+      
+      // Delete files
+      photos.forEach((p: any) => {
+        const filename = path.basename(p.url);
+        const filepath = path.join(UPLOAD_DIR, filename);
+        if (fs.existsSync(filepath)) {
+          fs.unlinkSync(filepath);
+        }
+      });
+
+      // Clear database for this user only
+      db.prepare('DELETE FROM christmas_photos WHERE user_id = ?').run(session.user.id);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
