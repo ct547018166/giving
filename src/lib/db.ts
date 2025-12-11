@@ -52,10 +52,45 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS christmas_photos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT NOT NULL,
+    user_id INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT UNIQUE,
+    password TEXT,
+    image TEXT,
+    provider TEXT,
+    provider_id TEXT,
+    role TEXT DEFAULT 'guest',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
+  CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+  );
+
   CREATE INDEX IF NOT EXISTS idx_signatures_nickname ON signatures(nickname);
+  CREATE INDEX IF NOT EXISTS idx_users_provider ON users(provider, provider_id);
 `);
+
+// Migration to add user_id to christmas_photos if it doesn't exist
+try {
+  const tableInfo = db.prepare("PRAGMA table_info(christmas_photos)").all() as any[];
+  const hasUserId = tableInfo.some(col => col.name === 'user_id');
+  if (!hasUserId) {
+    db.prepare("ALTER TABLE christmas_photos ADD COLUMN user_id INTEGER REFERENCES users(id)").run();
+  }
+} catch (error) {
+  console.error('Migration error:', error);
+}
+
+// Initialize default settings if not exists
+const initSettings = db.prepare("INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)");
+initSettings.run('guest_permissions', JSON.stringify(['/christmas-tree', '/christmas-lottery']));
 
 export default db;

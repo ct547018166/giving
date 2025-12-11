@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { auth } from '@/lib/auth';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'christmas');
 
@@ -13,7 +13,12 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 
 export async function GET() {
   try {
-    const photos = db.prepare('SELECT url FROM christmas_photos ORDER BY created_at ASC').all();
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? ORDER BY created_at ASC').all(session.user.id);
     return NextResponse.json(photos.map((p: any) => p.url));
   } catch (error) {
     console.error('Error fetching photos:', error);
@@ -23,6 +28,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -39,7 +49,7 @@ export async function POST(request: NextRequest) {
     fs.writeFileSync(filepath, buffer);
 
     const url = `/uploads/christmas/${filename}`;
-    db.prepare('INSERT INTO christmas_photos (url) VALUES (?)').run(url);
+    db.prepare('INSERT INTO christmas_photos (url, user_id) VALUES (?, ?)').run(url, session.user.id);
 
     return NextResponse.json({ url });
   } catch (error) {
@@ -50,8 +60,13 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE() {
   try {
-    // Get all photos to delete files
-    const photos = db.prepare('SELECT url FROM christmas_photos').all();
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get user's photos to delete files
+    const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(session.user.id);
     
     // Delete files
     photos.forEach((p: any) => {
@@ -62,8 +77,8 @@ export async function DELETE() {
       }
     });
 
-    // Clear database
-    db.prepare('DELETE FROM christmas_photos').run();
+    // Clear database for this user only
+    db.prepare('DELETE FROM christmas_photos WHERE user_id = ?').run(session.user.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

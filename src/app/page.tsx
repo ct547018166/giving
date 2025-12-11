@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import UserMenu from '@/components/UserMenu';
 
 export default function Home() {
   return (
@@ -6,6 +7,10 @@ export default function Home() {
       <div className="max-w-md w-full bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20 text-center">
         <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">🎄 圣诞快乐 🎁 </h1>
         
+        <div className="mb-8">
+          <UserMenu />
+        </div>
+
         <div className="space-y-4">
           <Link 
             href="/christmas-tree" 
@@ -20,15 +25,6 @@ export default function Home() {
           >
             🎁 圣诞大抽奖
           </Link>
-
-          <div className="pt-4 border-t border-white/20 mt-6">
-            <Link 
-              href="/maintenance" 
-              className="block w-full py-3 px-6 bg-white/5 hover:bg-white/10 text-gray-200 rounded-xl font-bold text-lg transition-all border border-white/10"
-            >
-              🛠 数据维护
-            </Link>
-          </div>
 
           {/* 感恩节内容暂时隐藏
           <div className="pt-4 border-t border-white/20 mt-6 opacity-50">
