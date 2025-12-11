@@ -8,16 +8,6 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 31536000, // 1年
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'thirdwx.qlogo.cn',
-      },
-      {
-        protocol: 'https',
-        hostname: 'wx.qlogo.cn',
-      }
-    ],
   },
 
   // 压缩和优化

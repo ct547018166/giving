@@ -8,12 +8,20 @@ export default function UserMenu() {
 
   if (!session) {
     return (
-      <Link 
-        href="/login" 
-        className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg transition-all border border-blue-400 mb-4"
-      >
-        🔑 登录账号
-      </Link>
+      <div className="space-y-3 mb-4">
+        <Link 
+          href="/login" 
+          className="block w-full py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-lg transition-all border border-blue-400"
+        >
+          🔑 登录账号
+        </Link>
+        <Link 
+          href="/register" 
+          className="block w-full py-3 px-6 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-lg transition-all border border-green-400"
+        >
+          📝 注册账号
+        </Link>
+      </div>
     );
   }
 
