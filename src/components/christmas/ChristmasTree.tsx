@@ -317,12 +317,12 @@ function PhotoCloud({ photos, conePositions, scatterPositions }: { photos: strin
 }
 
 function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: THREE.Vector3, scatter: THREE.Vector3 }, index: number }) {
-  const ref = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const { gameState, focusedPhotoId } = useGame();
   const [hovered, setHover] = useState(false);
   
   useFrame((state, delta) => {
-    if (!ref.current) return;
+    if (!groupRef.current) return;
     
     const mode = gameState.current;
     let target = mode === 'CONE' ? targetPos.cone : targetPos.scatter;
@@ -344,10 +344,10 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
         const worldTarget = new THREE.Vector3(0, 0, 10);
         
         // Convert to local space of the parent group
-        if (ref.current.parent) {
+        if (groupRef.current.parent) {
             // Ensure parent matrix is up to date to avoid lag
-            ref.current.parent.updateWorldMatrix(true, false);
-            target = ref.current.parent.worldToLocal(worldTarget.clone());
+            groupRef.current.parent.updateWorldMatrix(true, false);
+            target = groupRef.current.parent.worldToLocal(worldTarget.clone());
         }
       } else if (hovered) {
         targetScale = 2.5;
@@ -358,23 +358,30 @@ function PhotoItem({ url, targetPos, index }: { url: string, targetPos: { cone: 
     // If focused, snap faster to avoid lag
     const isFocused = mode === 'FOCUS' && focusedPhotoId.current === index.toString();
     // Use a smoother lerp factor (5 instead of 10) for focus
-    ref.current.position.lerp(target, isFocused ? delta * 5 : delta * 3);
+    groupRef.current.position.lerp(target, isFocused ? delta * 5 : delta * 3);
     
     // Look at camera
-    ref.current.lookAt(state.camera.position);
+    groupRef.current.lookAt(state.camera.position);
     
     // Scale
-    ref.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, 1), delta * 3);
+    groupRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, 1), delta * 3);
   });
 
   return (
-    <Image 
-      ref={ref}
-      url={url}
-      transparent
-      scale={[1.5, 1.5]}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-    />
+    <group ref={groupRef}>
+      {/* Polaroid Background */}
+      <mesh position={[0, -0.1, -0.01]}>
+        <planeGeometry args={[1.1, 1.35]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.8} />
+      </mesh>
+      
+      <Image 
+        url={url}
+        transparent
+        scale={[1, 1]}
+        onPointerOver={() => setHover(true)}
+        onPointerOut={() => setHover(false)}
+      />
+    </group>
   );
 }
