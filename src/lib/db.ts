@@ -78,19 +78,54 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_users_provider ON users(provider, provider_id);
 `);
 
-// Migration to add user_id to christmas_photos if it doesn't exist
-try {
-  const tableInfo = db.prepare("PRAGMA table_info(christmas_photos)").all() as any[];
-  const hasUserId = tableInfo.some(col => col.name === 'user_id');
-  if (!hasUserId) {
-    db.prepare("ALTER TABLE christmas_photos ADD COLUMN user_id INTEGER REFERENCES users(id)").run();
-  }
-} catch (error) {
-  console.error('Migration error:', error);
-}
+// --- Migration System ---
 
-// Initialize default settings if not exists
-const initSettings = db.prepare("INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)");
-initSettings.run('guest_permissions', JSON.stringify(['/christmas-tree', '/christmas-lottery']));
+// Create migrations table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT UNIQUE,
+    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+`);
+
+// Define migrations
+const migrations = [
+  {
+    name: '001_add_user_id_to_christmas_photos',
+    up: (db: Database.Database) => {
+      const tableInfo = db.prepare("PRAGMA table_info(christmas_photos)").all() as any[];
+      const hasUserId = tableInfo.some(col => col.name === 'user_id');
+      if (!hasUserId) {
+        db.prepare("ALTER TABLE christmas_photos ADD COLUMN user_id INTEGER REFERENCES users(id)").run();
+      }
+    }
+  },
+  {
+    name: '002_init_default_settings',
+    up: (db: Database.Database) => {
+       const initSettings = db.prepare("INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)");
+       initSettings.run('guest_permissions', JSON.stringify(['/christmas-tree', '/christmas-lottery']));
+    }
+  }
+];
+
+// Run migrations
+for (const migration of migrations) {
+  const row = db.prepare('SELECT id FROM migrations WHERE name = ?').get(migration.name);
+  if (!row) {
+    console.log(`Applying migration: ${migration.name}`);
+    try {
+      const runMigration = db.transaction(() => {
+        migration.up(db);
+        db.prepare('INSERT INTO migrations (name) VALUES (?)').run(migration.name);
+      });
+      runMigration();
+      console.log(`Migration ${migration.name} applied successfully.`);
+    } catch (error) {
+      console.error(`Failed to apply migration ${migration.name}:`, error);
+    }
+  }
+}
 
 export default db;
