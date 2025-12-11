@@ -61,7 +61,9 @@ module.exports = {
     cwd: '/var/www/giving',
     env: {
       NODE_ENV: 'production',
-      PORT: 3000
+      PORT: 3000,
+      AUTH_SECRET: 'prZnHWvNDrlE6mwKDxnujAN6yit+loYZKj/8JIdAGoE=',
+      NEXTAUTH_URL: 'https://peacechurch.cn'
     }
   }]
 }
