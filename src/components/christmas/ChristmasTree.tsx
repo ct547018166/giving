@@ -1,10 +1,32 @@
 'use client';
 
-import { useRef, useMemo, useState, useEffect, Suspense } from 'react';
+import { useRef, useMemo, useState, useEffect, Suspense, Component, ReactNode } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useGame } from './GameContext';
 import { Image, Text, Html } from '@react-three/drei';
+
+class ImageErrorBoundary extends Component<{ children: ReactNode, fallback?: ReactNode }, { hasError: boolean }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any) {
+    console.error("Failed to load image:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
 
 const TopStar = () => {
   const shape = useMemo(() => {
@@ -393,13 +415,15 @@ function PhotoItem({ url, targetPos, index, onDelete }: { url: string, targetPos
         <meshStandardMaterial color="#ffffff" roughness={0.8} />
       </mesh>
       
-      <Image 
-        url={url}
-        transparent
-        scale={[1, 1]}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-      />
+      <ImageErrorBoundary>
+        <Image 
+          url={url}
+          transparent
+          scale={[1, 1]}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+        />
+      </ImageErrorBoundary>
 
       {hovered && onDelete && (
         <Html position={[0.45, 0.55, 0.05]} center transform>
