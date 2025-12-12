@@ -40,7 +40,7 @@ export default function Experience({ photos, onDeletePhoto }: { photos: string[]
         </Suspense>
           
         <EffectComposer>
-          <Bloom luminanceThreshold={0.2} luminanceSmoothing={0.9} height={300} intensity={2.0} />
+          <Bloom luminanceThreshold={0.8} luminanceSmoothing={0.5} height={300} intensity={0.5} />
         </EffectComposer>
         
         <OrbitControls enableZoom={false} enablePan={false} />
