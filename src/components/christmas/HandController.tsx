@@ -42,7 +42,8 @@ export default function HandController() {
 
         hands = new Hands({
           locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
+            // Use unpkg as fallback if jsdelivr is slow/blocked
+            return `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${file}`;
           },
         });
 
