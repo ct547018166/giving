@@ -276,20 +276,30 @@ function PhotoCloud({ photos, conePositions, scatterPositions, onDeletePhoto }: 
   const prevMode = useRef(gameState.current);
   const lastFocusedIndex = useRef<number>(-1);
   
+  // Limit photos to prevent crash
+  const displayPhotos = useMemo(() => {
+    // If too many photos, take the latest 50 and some random ones from the rest to keep it interesting?
+    // For now, just take the latest 60 to ensure performance.
+    if (photos.length > 60) {
+        return photos.slice(-60);
+    }
+    return photos;
+  }, [photos]);
+
   // Assign each photo to a "slot" in the particle system
   const photoPositions = useMemo(() => {
-    return photos.map((_, i) => {
+    return displayPhotos.map((_, i) => {
       // Pick a random spot in the cone
       const y = Math.random() * CONE_HEIGHT - CONE_HEIGHT / 2;
       const r = (1 - (y + CONE_HEIGHT / 2) / CONE_HEIGHT) * (CONE_RADIUS + 0.5); // Slightly outside
-      const theta = (i / photos.length) * Math.PI * 2 * 3; // Wrap around 3 times
+      const theta = (i / displayPhotos.length) * Math.PI * 2 * 3; // Wrap around 3 times
       
       return {
         cone: new THREE.Vector3(r * Math.cos(theta), y, r * Math.sin(theta)),
         scatter: new THREE.Vector3((Math.random()-0.5)*12, (Math.random()-0.5)*8, (Math.random()-0.5)*5)
       };
     });
-  }, [photos]);
+  }, [displayPhotos]);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -301,15 +311,15 @@ function PhotoCloud({ photos, conePositions, scatterPositions, onDeletePhoto }: 
     // Focus Selection Logic
     if (mode === 'FOCUS' && prevMode.current !== 'FOCUS') {
         // Pick a random photo that is different from the last one
-        if (photos.length > 0) {
+        if (displayPhotos.length > 0) {
             let newIndex;
-            if (photos.length === 1) {
+            if (displayPhotos.length === 1) {
                 newIndex = 0;
             } else {
                 // Try to find a different photo, but don't loop forever if something is wrong
                 let attempts = 0;
                 do {
-                    newIndex = Math.floor(Math.random() * photos.length);
+                    newIndex = Math.floor(Math.random() * displayPhotos.length);
                     attempts++;
                 } while (newIndex === lastFocusedIndex.current && attempts < 10);
             }
@@ -326,9 +336,9 @@ function PhotoCloud({ photos, conePositions, scatterPositions, onDeletePhoto }: 
 
   return (
     <group ref={groupRef}>
-      {photos.map((url, i) => (
+      {displayPhotos.map((url, i) => (
         <PhotoItem 
-          key={i} 
+          key={url} // Use URL as key to prevent re-mounting when list changes (if possible)
           url={url} 
           targetPos={photoPositions[i]} 
           index={i}
