@@ -65,6 +65,27 @@ export default function AdminPage() {
     fetchData();
   };
 
+  const handleClearUserPhotos = async (userId: string, userName: string) => {
+    if (!confirm(`确定要清空用户 "${userName}" 的所有圣诞树照片吗？此操作不可恢复。`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/christmas-photos?userId=${userId}`, {
+        method: 'DELETE',
+      });
+      
+      if (res.ok) {
+        alert('照片已清空');
+      } else {
+        alert('操作失败');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('操作出错');
+    }
+  };
+
   if (loading) return <div className="p-8 text-white">Loading...</div>;
 
   const availableRoutes = [
@@ -119,7 +140,7 @@ export default function AdminPage() {
                         {user.role}
                       </span>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3 flex items-center space-x-2">
                       <select
                         value={user.role}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
@@ -128,6 +149,13 @@ export default function AdminPage() {
                         <option value="guest">Guest</option>
                         <option value="admin">Admin</option>
                       </select>
+                      <button
+                        onClick={() => handleClearUserPhotos(user.id, user.name)}
+                        className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded"
+                        title="清空该用户的圣诞树照片"
+                      >
+                        清理照片
+                      </button>
                     </td>
                   </tr>
                 ))}

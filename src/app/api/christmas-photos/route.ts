@@ -67,10 +67,19 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const urlToDelete = searchParams.get('url');
+    const targetUserId = searchParams.get('userId');
+
+    // Determine which user's photos to delete
+    let targetId = session.user.id;
+    
+    // Allow admin to delete other user's photos
+    if (targetUserId && session.user.role === 'admin') {
+      targetId = targetUserId;
+    }
 
     if (urlToDelete) {
       // Delete single photo
-      const photo = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? AND url = ?').get(session.user.id, urlToDelete) as { url: string } | undefined;
+      const photo = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? AND url = ?').get(targetId, urlToDelete) as { url: string } | undefined;
       
       if (photo) {
         const filename = path.basename(photo.url);
@@ -78,12 +87,11 @@ export async function DELETE(request: NextRequest) {
         if (fs.existsSync(filepath)) {
           fs.unlinkSync(filepath);
         }
-        db.prepare('DELETE FROM christmas_photos WHERE user_id = ? AND url = ?').run(session.user.id, urlToDelete);
+        db.prepare('DELETE FROM christmas_photos WHERE user_id = ? AND url = ?').run(targetId, urlToDelete);
       }
     } else {
-      // Delete all photos (existing behavior)
-      // Get user's photos to delete files
-      const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(session.user.id);
+      // Delete all photos for the target user
+      const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(targetId);
       
       // Delete files
       photos.forEach((p: any) => {
@@ -94,8 +102,8 @@ export async function DELETE(request: NextRequest) {
         }
       });
 
-      // Clear database for this user only
-      db.prepare('DELETE FROM christmas_photos WHERE user_id = ?').run(session.user.id);
+      // Clear database for this user
+      db.prepare('DELETE FROM christmas_photos WHERE user_id = ?').run(targetId);
     }
 
     return NextResponse.json({ success: true });
