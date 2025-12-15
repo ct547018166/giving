@@ -98,6 +98,11 @@ jspm_packages/
 .cache/
 # public
 
+# Database
+*.db
+*.db-shm
+*.db-wal
+
 # Storybook build outputs
 .out
 .storybook-out
