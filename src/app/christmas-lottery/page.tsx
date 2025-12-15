@@ -5,11 +5,8 @@ import LotteryClient from './client';
 
 export default async function LotteryPage() {
   const session = await auth();
-  
-  if (!session) {
-    redirect('/login');
-  }
 
+  // Do not force redirect to login; allow checkPermission to determine guest access
   const hasPermission = await checkPermission('/christmas-lottery');
   if (!hasPermission) {
     return (
