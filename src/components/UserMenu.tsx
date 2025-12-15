@@ -41,7 +41,7 @@ export default function UserMenu() {
       )}
 
       <button 
-        onClick={() => signOut()}
+        onClick={() => signOut({ callbackUrl: '/' })}
         className="block w-full py-3 px-6 bg-gray-600 hover:bg-gray-500 text-white rounded-xl font-bold text-lg transition-all border border-gray-400"
       >
         🚪 退出登录
