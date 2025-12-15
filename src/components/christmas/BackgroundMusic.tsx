@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 export default function BackgroundMusic() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     console.log("BackgroundMusic component mounted");
@@ -22,37 +23,65 @@ export default function BackgroundMusic() {
         }
     };
 
-    attemptPlay();
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
 
-    // Add global click listener to start music if autoplay failed
-    const handleInteraction = () => {
-        if (audioRef.current && audioRef.current.paused) {
-            attemptPlay();
-        }
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    audioEl.addEventListener('play', handlePlay);
+    audioEl.addEventListener('pause', handlePause);
+
+    // Only add global interaction handlers if autoplay failed.
+    const handleInteraction = (e: Event) => {
+      // If the user clicked the music button itself, do not auto-restart.
+      const target = e.target as Node | null;
+      if (target && containerRef.current?.contains(target)) return;
+
+      if (audioRef.current && audioRef.current.paused) {
+        void attemptPlay();
+      }
     };
 
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('touchstart', handleInteraction);
+    void (async () => {
+      try {
+        await attemptPlay();
+      } finally {
+        // If still not playing, rely on a user gesture.
+        if (audioRef.current?.paused) {
+          window.addEventListener('click', handleInteraction);
+          window.addEventListener('touchstart', handleInteraction);
+        }
+      }
+    })();
 
     return () => {
         window.removeEventListener('click', handleInteraction);
         window.removeEventListener('touchstart', handleInteraction);
+        audioEl.removeEventListener('play', handlePlay);
+        audioEl.removeEventListener('pause', handlePause);
     };
   }, []);
 
-  const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+  const togglePlay = async () => {
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
+
+    if (!audioEl.paused) {
+      audioEl.pause();
+      return;
+    }
+
+    try {
+      await audioEl.play();
+    } catch (error) {
+      console.log('Play prevented:', error);
+      setIsPlaying(false);
     }
   };
 
   return (
     <div 
+      ref={containerRef}
       className="fixed bottom-52 left-8 z-[9999] pointer-events-auto"
       style={{ position: 'fixed', bottom: '220px', left: '32px', zIndex: 99999 }}
     >

@@ -4,7 +4,7 @@ import { Vector3 } from 'three';
 export type GameState = 'CONE' | 'SCATTER' | 'FOCUS';
 
 export interface HandData {
-  gesture: 'FIST' | 'OPEN' | 'PINCH' | 'NONE';
+  gesture: 'FIST' | 'OPEN' | 'PINCH' | 'V_SIGN' | 'NONE';
   position: { x: number; y: number; z: number };
   rotation: number; // Hand rotation for camera control
   isTracking: boolean;

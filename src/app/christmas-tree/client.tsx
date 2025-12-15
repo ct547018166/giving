@@ -90,7 +90,16 @@ export default function ChristmasPage() {
         <Experience photos={photos} onDeletePhoto={handleDeletePhoto} />
 
         {/* Hand Controller (Webcam & Logic) */}
-        <HandController />
+        <HandController
+          onPhotoUploaded={(url) => {
+            setPhotos(prev => {
+              if (prev.length === 1 && prev[0] === '/thanksgiving-bg.JPG') {
+                return [url];
+              }
+              return [...prev, url];
+            });
+          }}
+        />
 
         {/* UI Overlay */}
         <div className="absolute top-4 left-4 z-10 text-white/80 pointer-events-none">
@@ -102,6 +111,7 @@ export default function ChristmasPage() {
             <p><span className="font-bold text-blue-400">🖐 张开</span> : 散开许愿</p>
             <p><span className="font-bold text-yellow-400">👋 挥手</span> : 旋转视角</p>
             <p><span className="font-bold text-red-400">👌 捏合</span> : 聚焦照片</p>
+            <p><span className="font-bold text-pink-300">✌️ 比耶</span> : 保持3秒拍照上树</p>
           </div>
         </div>
 
