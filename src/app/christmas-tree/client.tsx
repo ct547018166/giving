@@ -115,16 +115,6 @@ export default function ChristmasPage() {
           </div>
         </div>
 
-        {/* Menu Button (Top Right) */}
-        <a href="/menu" className="absolute top-4 right-4 z-20 text-white/50 hover:text-white transition-colors flex flex-col items-center group">
-          <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </div>
-          <span className="text-xs mt-1 opacity-0 group-hover:opacity-100 transition-opacity">菜单</span>
-        </a>
-
         {/* Photo Upload & Controls */}
         <div className="absolute bottom-8 left-8 z-20 flex flex-col items-start gap-4">
           <label className="cursor-pointer bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white px-6 py-3 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 border border-gold/30">
