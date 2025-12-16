@@ -152,9 +152,19 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
     if (!videoRef.current || !canvasRef.current) return;
 
     let hands: HandsLike | null = null;
+    let cancelled = false;
+    let stream: MediaStream | null = null;
+    let inFlight = false;
+    let consecutiveSendErrors = 0;
 
     const loadMediaPipe = async () => {
       try {
+        if (!window.isSecureContext) {
+          // getUserMedia requires HTTPS (except localhost). This is a common "works sometimes" cause.
+          setStatus('Camera requires HTTPS');
+        }
+
+        setStatus('Loading hand model...');
         const handsModule = await import('@mediapipe/hands');
         const drawingUtils = await import('@mediapipe/drawing_utils');
         
@@ -173,8 +183,9 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
 
         hands = new Hands({
           locateFile: (file) => {
-            // Use unpkg as fallback if jsdelivr is slow/blocked
-            return `https://unpkg.com/@mediapipe/hands@0.4.1675469240/${file}`;
+            // Prefer locally hosted assets (more reliable than CDN in some networks)
+            // Copied by: `npm run postinstall` -> `public/mediapipe/hands/*`
+            return `/mediapipe/hands/${file}`;
           },
         });
 
@@ -306,21 +317,48 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
         // Custom Camera Implementation
         const startCamera = async () => {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
+                if (cancelled) return;
+                setStatus('Requesting camera...');
+                const mediaStream = await navigator.mediaDevices.getUserMedia({
                 video: { width: 640, height: 480 }
                 });
+
+                if (cancelled) {
+                  mediaStream.getTracks().forEach((track) => track.stop());
+                  return;
+                }
+                // Keep reference for cleanup (covers cases where srcObject isn't available)
+                stream = mediaStream;
                 
                 if (videoRef.current) {
-                videoRef.current.srcObject = stream;
+                videoRef.current.srcObject = mediaStream;
+                videoRef.current.muted = true;
                 await videoRef.current.play();
                 setStatus('Camera Active');
                 
                 // Start processing frames
                 const processFrame = async () => {
+                    if (cancelled) return;
                     const handsInstance = hands;
-                    if (handsInstance && videoRef.current && videoRef.current.readyState === 4) {
-                      await handsInstance.send({ image: videoRef.current });
+                    const video = videoRef.current;
+
+                    // Avoid overlapping async sends (can destabilize MediaPipe on slow devices)
+                    if (!inFlight && handsInstance && video && video.readyState >= 2 && video.videoWidth > 0) {
+                      inFlight = true;
+                      try {
+                        await handsInstance.send({ image: video });
+                        consecutiveSendErrors = 0;
+                      } catch (e) {
+                        consecutiveSendErrors += 1;
+                        if (consecutiveSendErrors >= 5) {
+                          const message = e instanceof Error ? e.message : String(e);
+                          setStatus(`Hand model error: ${message}`);
+                        }
+                      } finally {
+                        inFlight = false;
+                      }
                     }
+
                     requestRef.current = requestAnimationFrame(processFrame);
                 };
                 requestRef.current = requestAnimationFrame(processFrame);
@@ -342,10 +380,15 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
     loadMediaPipe();
 
     return () => {
+      cancelled = true;
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
+        const srcStream = videoRef.current.srcObject as MediaStream;
+        srcStream.getTracks().forEach(track => track.stop());
+      }
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        stream = null;
       }
       if (hands) hands.close();
 
@@ -436,7 +479,7 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
           Status: {status}
         </div>
         <div className="relative w-48 h-36 rounded-lg overflow-hidden border-2 border-white/20 shadow-lg bg-black">
-          <video ref={videoRef} className="absolute top-0 left-0 w-full h-full object-cover opacity-50" playsInline />
+          <video ref={videoRef} className="absolute top-0 left-0 w-full h-full object-cover opacity-50" playsInline muted autoPlay />
           <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full object-cover" width={640} height={480} />
         </div>
       </div>
