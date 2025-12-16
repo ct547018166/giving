@@ -427,7 +427,7 @@ function PhotoItem({ url, targetPos, index, onDelete }: { url: string, targetPos
       
       <ImageErrorBoundary>
         <Image 
-          url={url}
+          url={`${url}${url.includes('?') ? '&' : '?'}w=768&q=80`}
           transparent
           scale={[1, 1]}
           onPointerOver={handlePointerOver}

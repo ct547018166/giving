@@ -3,6 +3,7 @@ import db from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 import { auth } from '@/lib/auth';
+import sharp from 'sharp';
 
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'christmas');
 
@@ -41,12 +42,28 @@ export async function POST(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    // Simple unique filename generation
-    const ext = path.extname(file.name);
-    const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
-    const filepath = path.join(UPLOAD_DIR, filename);
 
-    fs.writeFileSync(filepath, buffer);
+    // Save an optimized JPEG (good enough for tree textures; much smaller than original phone photos).
+    // This also normalizes orientation via rotate().
+    let outputBuffer: Buffer = buffer;
+    let filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
+    let filepath = path.join(UPLOAD_DIR, filename);
+
+    try {
+      outputBuffer = await sharp(buffer)
+        .rotate()
+        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 82, progressive: true, mozjpeg: true })
+        .toBuffer();
+    } catch (e) {
+      // If sharp fails (unsupported format), fall back to original bytes & extension.
+      const ext = path.extname(file.name) || '.bin';
+      filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
+      filepath = path.join(UPLOAD_DIR, filename);
+      outputBuffer = buffer;
+    }
+
+    fs.writeFileSync(filepath, outputBuffer);
 
     const url = `/uploads/christmas/${filename}`;
     db.prepare('INSERT INTO christmas_photos (url, user_id) VALUES (?, ?)').run(url, session.user.id);
