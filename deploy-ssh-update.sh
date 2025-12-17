@@ -101,9 +101,42 @@ else
   cd "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
+echo "🔎 Runtime versions"
+if command -v node >/dev/null 2>&1; then
+  node --version
+else
+  echo "❌ node not found on server" >&2
+  exit 1
+fi
+if command -v npm >/dev/null 2>&1; then
+  npm --version
+else
+  echo "❌ npm not found on server" >&2
+  exit 1
+fi
+
+# sharp@0.34+ requires Node >= 18.17.0 (or >=20). Give a clear error early.
+node -e 'const [M,m]=process.versions.node.split(".").map(Number); process.exit((M>18)||(M===18&&m>=17)||M>=20?0:1)' || {
+  echo "❌ Node version is too old for this build (need Node >= 18.17.0)." >&2
+  echo "   Fix (Ubuntu):" >&2
+  echo "     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -" >&2
+  echo "     apt-get install -y nodejs" >&2
+  exit 1
+}
+
 echo "📦 Installing dependencies"
-command -v npm >/dev/null 2>&1 || { echo "❌ npm not found on server" >&2; exit 1; }
-npm install
+npm install || {
+  echo "❌ npm install failed. Showing latest npm debug log (if any):" >&2
+  latest_log="$(ls -t /tmp/.npm/_logs/*debug-0.log 2>/dev/null | head -1 || true)"
+  if [[ -n "$latest_log" && -f "$latest_log" ]]; then
+    echo "--- $latest_log (tail) ---" >&2
+    tail -n 120 "$latest_log" >&2 || true
+    echo "--- end ---" >&2
+  else
+    echo "(No /tmp/.npm/_logs/*debug-0.log found)" >&2
+  fi
+  exit 1
+}
 
 echo "🔨 Building"
 npm run build
