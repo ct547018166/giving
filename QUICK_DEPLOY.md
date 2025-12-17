@@ -39,7 +39,7 @@ tar -xzf giving.tar.gz
 
 如果服务器经常因为网络原因无法 `git pull`，可以从本地通过 SSH 直接把代码同步到服务器，然后在服务器上构建并重启服务。
 
-> 注意：`deploy-ssh-update.sh` 现在支持两种模式：
+> 注意：`update.sh` 现在支持两种模式：
 > - 远端模式（推荐）：先手动 SSH 登录服务器，再在服务器上执行脚本
 > - 本地同步模式：在本地设置 `HOST=...`，脚本会用 rsync 同步代码到服务器
 
@@ -48,13 +48,13 @@ tar -xzf giving.tar.gz
 在本项目根目录执行（macOS/Linux）：
 
 ```bash
-HOST=你的服务器IP USER=root bash deploy-ssh-update.sh
+HOST=你的服务器IP USER=root bash update.sh
 ```
 
 可选参数：
 
 ```bash
-HOST=你的服务器IP USER=root PORT=22 REMOTE_DIR=/opt/giving KEY=~/.ssh/id_rsa bash deploy-ssh-update.sh
+HOST=你的服务器IP USER=root PORT=22 REMOTE_DIR=/opt/giving KEY=~/.ssh/id_rsa bash update.sh
 ```
 
 ### 2) 脚本行为说明
@@ -73,10 +73,10 @@ HOST=你的服务器IP USER=root PORT=22 REMOTE_DIR=/opt/giving KEY=~/.ssh/id_rs
 ```bash
 ssh root@你的服务器IP
 cd /opt/giving
-bash deploy-ssh-update.sh
+bash update.sh
 ```
 
-如果服务器执行时提示 `Missing HOST`，说明服务器上的脚本还是旧版本；请先在本地执行一次“本地同步模式”把最新脚本同步上去，或者用 `scp deploy-ssh-update.sh root@你的服务器IP:/opt/giving/` 单独更新脚本。
+如果服务器执行时提示 `Missing HOST`，说明服务器上的脚本还是旧版本；请先在本地执行一次“本地同步模式”把最新脚本同步上去，或者用 `scp update.sh root@你的服务器IP:/opt/giving/`（必要时也同步 `deploy-ssh-update.sh` 兼容脚本）单独更新脚本。
 
 ### 4. 域名配置
 在腾讯云域名控制台添加 A 记录：
