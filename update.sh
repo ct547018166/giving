@@ -125,7 +125,9 @@ node -e 'const [M,m]=process.versions.node.split(".").map(Number); process.exit(
   exit 1
 }
 
+
 echo "📦 Installing dependencies"
+npm config set registry https://registry.npmmirror.com/
 npm install || {
   echo "❌ npm install failed. Showing latest npm debug log (if any):" >&2
   latest_log="$(ls -t /tmp/.npm/_logs/*debug-0.log 2>/dev/null | head -1 || true)"
