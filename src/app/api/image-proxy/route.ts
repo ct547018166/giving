@@ -17,66 +17,72 @@ export async function GET(request: NextRequest) {
     // We need to map this to the filesystem.
     // Assumes public folder structure.
 
-    // Normalize path to prevent traversal
-    const safePath = path.normalize(imageUrl).replace(/^(\.\.[\/\\])+/, '');
+    // Decode URL in case (though we expect generated safe filenames)
+    const decodedUrl = decodeURIComponent(imageUrl);
+    const safePath = path.normalize(decodedUrl).replace(/^(\.\.[\/\\])+/, '');
 
     // Construct absolute path
     const absolutePath = path.join(process.cwd(), 'public', safePath);
 
+    // Identify file type
+    const isHeic = safePath.toLowerCase().endsWith('.heic') || safePath.toLowerCase().endsWith('.heif');
+
     // Verify it starts with the correct uploads directory to prevent arbitrary file reading
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     if (!absolutePath.startsWith(uploadsDir)) {
+        console.error('Forbidden access attempt:', absolutePath);
         return new NextResponse('Forbidden', { status: 403 });
     }
 
     if (!fs.existsSync(absolutePath)) {
+        console.error('File not found:', absolutePath);
         return new NextResponse('File not found', { status: 404 });
     }
 
     try {
         const fileBuffer = fs.readFileSync(absolutePath);
 
-        // Check if it needs conversion
-        const isHeic = safePath.toLowerCase().endsWith('.heic') || safePath.toLowerCase().endsWith('.heif');
-
         // Cache headers
         const headers = {
             'Cache-Control': 'public, max-age=31536000, immutable',
-            'Content-Type': 'image/jpeg', // We will output JPEG
+            'Content-Type': 'image/jpeg',
         };
 
         let outputBuffer;
 
-        // Always run through sharp for optimization/resizing if needed, 
-        // but definitely for HEIC conversion.
-        // Even for JPEGs, resizing them here (if ?w= is provided) is good practice, 
-        // but for now let's just solve the HEIC compatibility.
-
-        // Note: older sharp versions might need specific heic install, but we checked heic-convert before.
-        // However, sharp is much faster if it works. 
-        // If sharp fails on HEIC, we can try heic-convert as fallback, similar to the upload route.
-
-        try {
-            const pipeline = sharp(fileBuffer);
-            // Auto-rotate based on EXIF
-            pipeline.rotate();
-
-            // Convert to JPEG
-            pipeline.jpeg({ quality: 80, mozjpeg: true });
-
-            outputBuffer = await pipeline.toBuffer();
-        } catch (sharpError) {
-            console.warn('Sharp processing failed, trying heic-convert fallback', sharpError);
-            // Fallback for HEIC if sharp lacks codec
-            if (isHeic) {
+        if (isHeic) {
+            // FORCE fallback to heic-convert because sharp on this server implies no HEIC support
+            // (proven by previous execution logs showing 'heif: Error while loading plugin')
+            console.log(`Converting HEIC via heic-convert: ${safePath}`);
+            try {
+                // Dynamic require to ensure it's loaded
                 const heicConvert = require('heic-convert');
                 outputBuffer = await heicConvert({
                     buffer: fileBuffer,
                     format: 'JPEG',
-                    quality: 0.8
+                    quality: 0.7 // Lower quality slightly to save memory/cpu
                 });
-            } else {
-                throw sharpError;
+            } catch (heicError) {
+                console.error('heic-convert failed:', heicError);
+                return new NextResponse('Conversion failed', { status: 500 });
+            }
+        } else {
+            // Standard image processing for other formats
+            try {
+                const pipeline = sharp(fileBuffer);
+                pipeline.rotate();
+                pipeline.jpeg({ quality: 80, mozjpeg: true });
+                outputBuffer = await pipeline.toBuffer();
+            } catch (sharpError) {
+                console.error('Sharp processing failed:', sharpError);
+                // Fallback: return original buffer if simple processing fails
+                // But we must serve allow generic content type if we do that, or hope it's jpeg compatible
+                return new NextResponse(fileBuffer, {
+                    headers: {
+                        'Cache-Control': 'public, max-age=31536000, immutable'
+                        // Let browser sniff type if we return raw
+                    }
+                });
             }
         }
 
