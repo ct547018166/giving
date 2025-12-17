@@ -144,11 +144,7 @@ npm install || {
 echo "🔨 Building"
 npm run build
 
-# Run HEIC fix script if it exists
-if [ -f "scripts/fix-heic-images.js" ]; then
-  echo "🔧 Running HEIC image fix script..."
-  node scripts/fix-heic-images.js || echo "⚠️ HEIC fix script failed, continuing..."
-fi
+
 
 echo "♻️ Restarting pm2 process ($PM2_NAME)"
 command -v pm2 >/dev/null 2>&1 || { echo "❌ pm2 not found on server (install: npm i -g pm2)" >&2; exit 1; }

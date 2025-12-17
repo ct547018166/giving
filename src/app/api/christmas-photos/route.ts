@@ -43,43 +43,37 @@ export async function POST(request: NextRequest) {
 
     let buffer = Buffer.from(await file.arrayBuffer());
 
-    // Convert HEIC to JPEG if needed (since sharp env might lack HEIC support)
+    // Save file
+    // If it's HEIC, we save it as is (user request), and rely on the image-proxy to serve it as JPEG.
+    // If it's other formats, we optimize it with Sharp.
+
     const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    let outputBuffer: Buffer;
+    let filename: string;
+
     if (isHeic) {
+      // Save original HEIC
+      outputBuffer = buffer;
+      const ext = path.extname(file.name) || '.heic';
+      filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
+    } else {
+      // Optimize others
       try {
-        const heicConvert = require('heic-convert');
-        // Convert to JPEG buffer
-        buffer = Buffer.from(await heicConvert({
-          buffer: buffer,
-          format: 'JPEG',
-          quality: 0.9
-        }));
+        outputBuffer = await sharp(buffer)
+          .rotate()
+          .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: 82, progressive: true, mozjpeg: true })
+          .toBuffer();
+        filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
       } catch (e) {
-        console.error('HEIC conversion failed, falling back to original buffer:', e);
+        console.error('Sharp processing failed:', e);
+        const ext = path.extname(file.name) || '.bin';
+        filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
+        outputBuffer = buffer;
       }
     }
 
-    // Save an optimized JPEG (good enough for tree textures; much smaller than original phone photos).
-    // This also normalizes orientation via rotate().
-    let outputBuffer: Buffer = buffer;
-    let filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
     let filepath = path.join(UPLOAD_DIR, filename);
-
-    try {
-      outputBuffer = await sharp(buffer)
-        .rotate()
-        .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: 82, progressive: true, mozjpeg: true })
-        .toBuffer();
-    } catch (e) {
-      console.error('Sharp processing failed:', e);
-      // If sharp fails (unsupported format), fall back to original bytes & extension.
-      const ext = path.extname(file.name) || '.bin';
-      filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
-      filepath = path.join(UPLOAD_DIR, filename);
-      outputBuffer = buffer;
-    }
-
     fs.writeFileSync(filepath, outputBuffer);
 
     const url = `/uploads/christmas/${filename}`;
