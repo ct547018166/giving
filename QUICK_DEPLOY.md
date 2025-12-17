@@ -35,6 +35,33 @@ cd /var/www
 tar -xzf giving.tar.gz
 ```
 
+## ✅ 方式3：不依赖 GitHub 的 SSH 直传更新（推荐用于服务器无法稳定 git pull）
+
+如果服务器经常因为网络原因无法 `git pull`，可以从本地通过 SSH 直接把代码同步到服务器，然后在服务器上构建并重启服务。
+
+### 1) 本地准备
+
+在本项目根目录执行（macOS/Linux）：
+
+```bash
+HOST=你的服务器IP USER=root bash deploy-ssh-update.sh
+```
+
+可选参数：
+
+```bash
+HOST=你的服务器IP USER=root PORT=22 REMOTE_DIR=/opt/giving KEY=~/.ssh/id_rsa bash deploy-ssh-update.sh
+```
+
+### 2) 脚本行为说明
+
+- 使用 `rsync` 同步代码到服务器目录（默认 `/opt/giving`）
+- 默认会保留服务器上的：
+	- `public/uploads/`（用户照片/上传内容）
+	- `database.db`（SQLite 数据库文件）
+	- `.env*`（服务器环境变量文件）
+- 同步完成后在服务器执行：`npm install` → `npm run build` → `pm2 restart` → 健康检查
+
 ### 4. 域名配置
 在腾讯云域名控制台添加 A 记录：
 - 主机记录：@ 和 www
