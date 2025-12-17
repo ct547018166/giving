@@ -6,10 +6,12 @@ import { GameProvider } from '@/components/christmas/GameContext';
 import Experience from '@/components/christmas/Experience';
 import HandController from '@/components/christmas/HandController';
 import BackgroundMusic from '@/components/christmas/BackgroundMusic';
+import ParticleProgressBar from '@/components/christmas/ParticleProgressBar';
 
 export default function ChristmasPage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Fetch photos from DB on mount
   useEffect(() => {
@@ -30,33 +32,56 @@ export default function ChristmasPage() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setIsUploading(true);
+      setUploadProgress(0);
       const files = Array.from(e.target.files);
+      let completedCount = 0;
+      const totalFiles = files.length;
       
       for (const file of files) {
         const formData = new FormData();
         formData.append('file', file);
         
         try {
-            const res = await fetch('/api/christmas-photos', {
-                method: 'POST',
-                body: formData
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setPhotos(prev => {
-                    // If it was just the placeholder, replace it. Otherwise append.
-                    if (prev.length === 1 && prev[0] === '/thanksgiving-bg.JPG') {
-                        return [data.url];
+            await new Promise<void>((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', '/api/christmas-photos');
+                
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const fileProgress = (event.loaded / event.total) * 100;
+                        // Calculate overall progress
+                        const overallProgress = ((completedCount * 100) + fileProgress) / totalFiles;
+                        setUploadProgress(overallProgress);
                     }
-                    return [...prev, data.url];
-                });
-            }
+                };
+
+                xhr.onload = async () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const data = JSON.parse(xhr.responseText);
+                        setPhotos(prev => {
+                            // If it was just the placeholder, replace it. Otherwise append.
+                            if (prev.length === 1 && prev[0] === '/thanksgiving-bg.JPG') {
+                                return [data.url];
+                            }
+                            return [...prev, data.url];
+                        });
+                        resolve();
+                    } else {
+                        reject(new Error(xhr.statusText));
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Network Error'));
+                xhr.send(formData);
+            });
+            completedCount++;
         } catch (error) {
             console.error('Upload failed:', error);
             alert('上传失败: ' + file.name);
         }
       }
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -157,6 +182,9 @@ export default function ChristmasPage() {
 
         {/* Background Music */}
         <BackgroundMusic />
+
+        {/* Upload Progress Overlay */}
+        {isUploading && <ParticleProgressBar progress={uploadProgress} />}
       </main>
     </GameProvider>
   );

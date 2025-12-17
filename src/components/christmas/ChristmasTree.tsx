@@ -30,7 +30,7 @@ class ImageErrorBoundary extends Component<{ children: ReactNode, fallback?: Rea
 
 const TopStar = () => {
   const shape = useMemo(() => {
-    const s = new THREE.Shape();
+    const s = new (THREE as any).Shape();
     const points = 5;
     const outerRadius = 0.4;
     const innerRadius = 0.2;
