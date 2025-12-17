@@ -183,9 +183,9 @@ export default function HandController({ onPhotoUploaded }: HandControllerProps)
 
         hands = new Hands({
           locateFile: (file) => {
-            // Prefer locally hosted assets (more reliable than CDN in some networks)
-            // Copied by: `npm run postinstall` -> `public/mediapipe/hands/*`
-            return `/mediapipe/hands/${file}`;
+            // 使用 CDN 避免本地路径导致的 Emscripten 加载器路径映射错误
+            // Use CDN to avoid Emscripten loader path mapping errors with local paths
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
           },
         });
 
