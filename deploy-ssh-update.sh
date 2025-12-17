@@ -63,6 +63,25 @@ echo "♻️ Restarting pm2 process"
 ssh "${SSH_OPTS[@]}" "$REMOTE" "cd '$REMOTE_DIR' && pm2 restart giving-app || pm2 start npm --name 'giving-app' -- start"
 
 echo "🩺 Health check"
-ssh "${SSH_OPTS[@]}" "$REMOTE" "sleep 3 && curl -fsS http://localhost:3000/api/health >/dev/null && echo '✅ Deployment successful' || (echo '❌ Health check failed' && exit 1)"
+ssh "${SSH_OPTS[@]}" "$REMOTE" "bash -lc '
+  set -e
+  sleep 3
+
+  URL="http://localhost:3000/api/health"
+
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsS "$URL" >/dev/null
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- "$URL" >/dev/null
+  elif command -v node >/dev/null 2>&1; then
+    node -e "const http=require(\"http\");const req=http.get(process.env.URL,res=>{process.exit(res.statusCode>=200&&res.statusCode<300?0:1)});req.on(\"error\",()=>process.exit(1));" \
+      URL="$URL"
+  else
+    echo "No curl/wget/node available for health check" >&2
+    exit 1
+  fi
+
+  echo "✅ Deployment successful"
+'"
 
 echo "✅ Done"
