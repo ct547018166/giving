@@ -41,7 +41,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    let buffer = Buffer.from(await file.arrayBuffer());
+
+    // Convert HEIC to JPEG if needed (since sharp env might lack HEIC support)
+    const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+    if (isHeic) {
+      try {
+        const heicConvert = require('heic-convert');
+        // Convert to JPEG buffer
+        buffer = Buffer.from(await heicConvert({
+          buffer: buffer,
+          format: 'JPEG',
+          quality: 0.9
+        }));
+      } catch (e) {
+        console.error('HEIC conversion failed, falling back to original buffer:', e);
+      }
+    }
 
     // Save an optimized JPEG (good enough for tree textures; much smaller than original phone photos).
     // This also normalizes orientation via rotate().
@@ -56,6 +72,7 @@ export async function POST(request: NextRequest) {
         .jpeg({ quality: 82, progressive: true, mozjpeg: true })
         .toBuffer();
     } catch (e) {
+      console.error('Sharp processing failed:', e);
       // If sharp fails (unsupported format), fall back to original bytes & extension.
       const ext = path.extname(file.name) || '.bin';
       filename = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${ext}`;
@@ -88,7 +105,7 @@ export async function DELETE(request: NextRequest) {
 
     // Determine which user's photos to delete
     let targetId = session.user.id;
-    
+
     // Allow admin to delete other user's photos
     if (targetUserId && session.user.role === 'admin') {
       targetId = targetUserId;
@@ -97,7 +114,7 @@ export async function DELETE(request: NextRequest) {
     if (urlToDelete) {
       // Delete single photo
       const photo = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? AND url = ?').get(targetId, urlToDelete) as { url: string } | undefined;
-      
+
       if (photo) {
         const filename = path.basename(photo.url);
         const filepath = path.join(UPLOAD_DIR, filename);
@@ -109,7 +126,7 @@ export async function DELETE(request: NextRequest) {
     } else {
       // Delete all photos for the target user
       const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ?').all(targetId);
-      
+
       // Delete files
       photos.forEach((p: any) => {
         const filename = path.basename(p.url);
