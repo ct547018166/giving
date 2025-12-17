@@ -86,7 +86,7 @@ export default function BackgroundMusic() {
       style={{ position: 'fixed', bottom: '220px', left: '32px', zIndex: 99999 }}
     >
       <audio ref={audioRef} loop>
-        <source src="/Christmas List.mp3" type="audio/mpeg" />
+        <source src="/Christmas List.m4a" type="audio/mp4" />
         Your browser does not support the audio element.
       </audio>
       
