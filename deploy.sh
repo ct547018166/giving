@@ -22,6 +22,7 @@ apt-get install -y nodejs
 
 # 安装 PM2 和其他工具
 echo "📦 安装 PM2 和工具..."
+npm config set registry https://registry.npmmirror.com/
 npm install -g pm2
 apt install -y nginx git ufw
 
