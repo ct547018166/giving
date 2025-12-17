@@ -25,6 +25,12 @@ PORT="${PORT:-22}"
 KEY="${KEY:-}"
 REMOTE_DIR="${REMOTE_DIR:-/opt/giving}"
 
+MODE="remote"
+if [[ -n "$HOST" ]]; then
+  MODE="local-sync"
+fi
+echo "▶ deploy-ssh-update.sh mode: $MODE"
+
 health_check() {
   local url="$1"
   if command -v curl >/dev/null 2>&1; then

@@ -39,6 +39,10 @@ tar -xzf giving.tar.gz
 
 如果服务器经常因为网络原因无法 `git pull`，可以从本地通过 SSH 直接把代码同步到服务器，然后在服务器上构建并重启服务。
 
+> 注意：`deploy-ssh-update.sh` 现在支持两种模式：
+> - 远端模式（推荐）：先手动 SSH 登录服务器，再在服务器上执行脚本
+> - 本地同步模式：在本地设置 `HOST=...`，脚本会用 rsync 同步代码到服务器
+
 ### 1) 本地准备
 
 在本项目根目录执行（macOS/Linux）：
@@ -61,6 +65,18 @@ HOST=你的服务器IP USER=root PORT=22 REMOTE_DIR=/opt/giving KEY=~/.ssh/id_rs
 	- `database.db`（SQLite 数据库文件）
 	- `.env*`（服务器环境变量文件）
 - 同步完成后在服务器执行：`npm install` → `npm run build` → `pm2 restart` → 健康检查
+
+### 3) 远端模式（先 SSH 登录再执行）
+
+当你已经手动登录服务器（例如需要扫码/二次认证时推荐这样做）：
+
+```bash
+ssh root@你的服务器IP
+cd /opt/giving
+bash deploy-ssh-update.sh
+```
+
+如果服务器执行时提示 `Missing HOST`，说明服务器上的脚本还是旧版本；请先在本地执行一次“本地同步模式”把最新脚本同步上去，或者用 `scp deploy-ssh-update.sh root@你的服务器IP:/opt/giving/` 单独更新脚本。
 
 ### 4. 域名配置
 在腾讯云域名控制台添加 A 记录：
