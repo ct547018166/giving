@@ -20,7 +20,18 @@ export async function GET() {
     }
 
     const photos = db.prepare('SELECT url FROM christmas_photos WHERE user_id = ? ORDER BY created_at ASC').all(session.user.id);
-    return NextResponse.json(photos.map((p: any) => p.url));
+
+    // Transform URLs to use proxy for HEIC files
+    const urls = photos.map((p: any) => {
+      const url = p.url as string;
+      const isHeic = url.toLowerCase().endsWith('.heic') || url.toLowerCase().endsWith('.heif');
+      if (isHeic) {
+        return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+      }
+      return url;
+    });
+
+    return NextResponse.json(urls);
   } catch (error) {
     console.error('Error fetching photos:', error);
     return NextResponse.json({ error: 'Failed to fetch photos' }, { status: 500 });

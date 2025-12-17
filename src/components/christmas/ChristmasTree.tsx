@@ -427,11 +427,7 @@ function PhotoItem({ url, targetPos, index, onDelete }: { url: string, targetPos
 
       <ImageErrorBoundary>
         <Image
-          url={
-            url.toLowerCase().endsWith('.heic') || url.toLowerCase().endsWith('.heif')
-              ? `/api/image-proxy?url=${encodeURIComponent(url)}`
-              : `${url}${url.includes('?') ? '&' : '?'}w=768&q=80`
-          }
+          url={url.includes('/api/image-proxy') ? url : `${url}${url.includes('?') ? '&' : '?'}w=768&q=80`}
           transparent
           scale={[1, 1]}
           onPointerOver={handlePointerOver}
