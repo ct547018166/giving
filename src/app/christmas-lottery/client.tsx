@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import StarryBackground from '@/components/christmas/StarryBackground';
 
@@ -246,6 +247,15 @@ export default function LotteryPage() {
       {/* Audio */}
       <audio ref={audioRef} loop src="/lottery-music.mp3" />
       
+      {/* Back Button */}
+      <Link 
+        href="/" 
+        className="fixed top-4 right-20 z-50 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-lg transition-colors border border-white/20 flex items-center gap-2"
+      >
+        <span>🏠</span>
+        <span>返回首页</span>
+      </Link>
+
       {/* Music Control */}
       <button 
         onClick={toggleMusic}

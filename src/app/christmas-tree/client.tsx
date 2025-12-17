@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { GameProvider } from '@/components/christmas/GameContext';
 import Experience from '@/components/christmas/Experience';
 import HandController from '@/components/christmas/HandController';
@@ -86,6 +87,15 @@ export default function ChristmasPage() {
   return (
     <GameProvider>
       <main className="relative w-full h-screen overflow-hidden bg-black">
+        {/* Back Button */}
+        <Link 
+          href="/" 
+          className="absolute top-4 right-4 z-50 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg transition-colors border border-white/30 flex items-center gap-2"
+        >
+          <span>🏠</span>
+          <span>返回首页</span>
+        </Link>
+
         {/* 3D Scene */}
         <Experience photos={photos} onDeletePhoto={handleDeletePhoto} />
 
