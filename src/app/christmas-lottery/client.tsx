@@ -76,7 +76,7 @@ export default function LotteryPage() {
     
     // Start music if not playing
     if (audioRef.current) {
-        audioRef.current.currentTime = 46;
+        audioRef.current.currentTime = 0;
         audioRef.current.play().catch(() => {});
         setMusicPlaying(true);
     }
@@ -158,7 +158,7 @@ export default function LotteryPage() {
 
     // Start music if not playing
     if (audioRef.current && !musicPlaying) {
-        audioRef.current.currentTime = 46;
+        audioRef.current.currentTime = 0;
         audioRef.current.play().catch(() => {});
         setMusicPlaying(true);
     }
@@ -245,7 +245,7 @@ export default function LotteryPage() {
       </div>
 
       {/* Audio */}
-      <audio ref={audioRef} loop src="/lottery-music.mp3" />
+      <audio ref={audioRef} loop src="/MerryChristmas.mp3" preload="auto" />
       
       {/* Back Button */}
       <Link 
