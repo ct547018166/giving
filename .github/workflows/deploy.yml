@@ -24,7 +24,7 @@ jobs:
             cd /opt/giving
             git pull origin main
             npm install
-            npm run build
+            CI=true NEXT_TELEMETRY_DISABLED=1 npm run build
             pm2 restart giving-app || pm2 start npm --name "giving-app" -- start
             sleep 30
             if curl -f http://localhost:3000/api/health; then

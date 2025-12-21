@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   allowedDevOrigins: ['localhost', '127.0.0.1', '172.20.10.3'],
 
   async headers() {
