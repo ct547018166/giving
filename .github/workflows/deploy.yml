@@ -23,7 +23,7 @@ jobs:
           script: |
             cd /opt/giving
             git pull origin main
-            npm install
+            npx --yes cnpm install || npm install
             CI=true NEXT_TELEMETRY_DISABLED=1 npm run build
             pm2 restart giving-app || pm2 start npm --name "giving-app" -- start
             sleep 30

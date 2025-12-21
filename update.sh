@@ -142,9 +142,7 @@ npx --yes cnpm install || npm install || {
 }
 
 echo "🔨 Building"
-export CI=true
-export NEXT_TELEMETRY_DISABLED=1
-npm run build
+CI=true NEXT_TELEMETRY_DISABLED=1 npm run build
 
 
 
