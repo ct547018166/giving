@@ -116,9 +116,9 @@ else
   exit 1
 fi
 
-# sharp@0.34+ requires Node >= 18.17.0 (or >=20). Give a clear error early.
-node -e 'const [M,m]=process.versions.node.split(".").map(Number); process.exit((M>18)||(M===18&&m>=17)||M>=20?0:1)' || {
-  echo "❌ Node version is too old for this build (need Node >= 18.17.0)." >&2
+# Next.js requires Node >= 20.9.0. Give a clear error early.
+node -e 'const [M,m,p]=process.versions.node.split(".").map(Number); process.exit((M>20)||(M===20&&(m>9||(m===9&&p>=0)))?0:1)' || {
+  echo "❌ Node version is too old for this build (need Node >= 20.9.0)." >&2
   echo "   Fix (Ubuntu):" >&2
   echo "     curl -fsSL https://deb.nodesource.com/setup_20.x | bash -" >&2
   echo "     apt-get install -y nodejs" >&2
